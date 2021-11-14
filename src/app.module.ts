@@ -4,6 +4,8 @@ import { ConfigModule } from '@nestjs/config';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { UsersModule } from './users/products.module';
+import { UserCurrenciesController } from './user-currencies/user-currencies.controller';
 
 @Module({
   imports: [
@@ -11,8 +13,9 @@ import { AppService } from './app.service';
     MongooseModule.forRoot(
       `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.v3bg0.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`,
     ),
+    UsersModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, UserCurrenciesController],
   providers: [AppService],
 })
 export class AppModule {}
