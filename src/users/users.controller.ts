@@ -1,12 +1,12 @@
 import {
   Controller,
   Get,
-  Post,
+  Put,
   Param,
   Body,
-  Patch,
   HttpCode,
   HttpStatus,
+  Post,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserBalanceDto } from './dto/update-user-balance.dto';
@@ -34,7 +34,7 @@ export class UsersController {
     return this.usersService.creatUser(userDto);
   }
 
-  @Patch(':id')
+  @Put(':id')
   updateUser(
     @Param('id') id: string,
     @Body() userDto: UpdateUserDto,
@@ -42,7 +42,7 @@ export class UsersController {
     return this.usersService.updateUser({ id, userDto });
   }
 
-  @Patch('balance/:id')
+  @Put('balance/:id')
   updateBalance(
     @Param('id') id: string,
     @Body() userBalanceDto: UpdateUserBalanceDto,
