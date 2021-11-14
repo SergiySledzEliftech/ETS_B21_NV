@@ -1,15 +1,17 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
-import { HttpModule } from '@nestjs/axios';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/products.module';
+
 import { UserCurrenciesController } from './user-currencies/user-currencies.controller';
 import { GlobalCurrenciesService } from './global-currencies/global-currencies.service';
 import { GlobalCurrenciesModule } from './global-currencies/global-currencies.module';
 import { GlobalCurrenciesController } from './global-currencies/global-currencies.controller';
+
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
