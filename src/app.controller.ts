@@ -7,7 +7,7 @@ export class AppController {
   constructor(private authService: AuthService) {}
   
   @UseGuards(LocalAuthGuard)
-  @Post('auth/login')
+  @Post('users/login')
   async login(@Request() req) {
     return this.authService.login(req.user);
   }

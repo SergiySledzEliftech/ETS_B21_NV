@@ -14,7 +14,7 @@ import { jwtConstants } from './constants';
     JwtModule.registerAsync({
       useFactory: () => ({
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '600s' },
+      signOptions: { expiresIn: '3600s' },
       })
     }),
   ],
