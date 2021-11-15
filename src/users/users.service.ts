@@ -1,6 +1,6 @@
-import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { HttpCode } from '@nestjs/common';
+// import { HttpCode } from '@nestjs/common';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -26,6 +26,7 @@ export class UsersService {
 
     const newUser = new this.userModel(userDto);
     newUser.password = hash;
+    newUser.lastBonusTime = Date.now();
     return newUser.save();
   }
 
