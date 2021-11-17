@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/products.module';
 import { UserCurrenciesController } from './user-currencies/user-currencies.controller';
+import { TransactionHistoryModule } from './transaction-history/transaction-history.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { UserCurrenciesController } from './user-currencies/user-currencies.cont
       `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.v3bg0.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`,
     ),
     UsersModule,
+    TransactionHistoryModule,
   ],
   controllers: [AppController, UserCurrenciesController],
   providers: [AppService],
