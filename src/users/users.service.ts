@@ -18,8 +18,13 @@ export class UsersService {
     return this.userModel.findById(id);
   }
 
+  async getBalance(id: string): Promise<number> {
+    const { dollarBalance } = await this.userModel.findById(id);
+    return dollarBalance;
+  }
+
   // example register
-  async creatUser(userDto: CreateUserDto): Promise<any> {
+  async creatUser(userDto: CreateUserDto): Promise<User> {
     const saltRounds = 10;
     const password = userDto.password;
     const hash = await bcrypt.hash(password, saltRounds);
