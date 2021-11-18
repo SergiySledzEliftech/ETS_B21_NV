@@ -1,103 +1,107 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Injectable, Patch, Post, Query } from '@nestjs/common';
+import { UserCurrenciesService } from './user-currencies.service'
+import { Currency } from './schemas/currency.schema';
+import { Transaction } from './schemas/transaction.schema';
+
+import { HttpService } from '@nestjs/axios';
+import { AxiosResponse } from 'axios';
+import { Observable, map } from 'rxjs';
+
 import { GetCurrencyDto } from './dto/get-currency.dto';
 import { UserCurrencyDto } from './dto/user-currency.dto';
-import { PatchCurrencyDto } from './dto/patch-currency.dto';
-import { PatchCurrencyQueryDto } from './dto/patch-currency-query.dto';
-import { DeleteCurrencyDto } from './dto/delete-currency.dto';
+import { UpdateCurrencyDto } from './dto/update-currency.dto';
+import { GetTransactionsDto } from './dto/get-transactions.dto';
+import { BuyCurrencyDto } from './dto/buy-currency.dto';
+import { CreateTransactionDto } from './dto/create-transaction.dto';
 
-interface UserCurrency {
-  userId: string;
-  name: string;
-  purchaseDate: Date;
-  amount: number;
-  iconURL: string;
-}
-
-const userCurrencies: UserCurrency[] = [
-  {
-    userId: '1',
-    name: 'Bitcoin',
-    purchaseDate: new Date(2020, 9, 3),
-    amount: 0.2,
-    iconURL: './assets/bitcoin.jpg',
-  },
-  {
-    userId: '1',
-    name: 'Etherium',
-    purchaseDate: new Date(2021, 2, 27),
-    amount: 7,
-    iconURL: './assets/etherium.jpg',
-  },
-  {
-    userId: '1',
-    name: 'XRP',
-    purchaseDate: new Date(2019, 4, 7),
-    amount: 7380,
-    iconURL: './assets/xrp.jpg',
-  },
-  {
-    userId: '2',
-    name: 'Bitcoin',
-    purchaseDate: new Date(2020, 3, 19),
-    amount: 2.9,
-    iconURL: './assets/bitcoin.jpg',
-  },
-  {
-    userId: '2',
-    name: 'Cardano',
-    purchaseDate: new Date(2021, 14, 17),
-    amount: 4590,
-    iconURL: './assets/cardano.jpg',
-  },
-]
+const SERVER_RATE = 'localhost:4000/globalCurrencies';
+let userBalance = 100000;
 
 @Controller('userCurrencies')
 export class UserCurrenciesController {
-
-  @Get()
-  get(@Query() query: GetCurrencyDto): UserCurrencyDto | UserCurrencyDto[] {
-    const { userId, name } = query;
-    const all = userCurrencies.filter(currency => currency.userId === userId);
-    if (!name) {
-      return all;
-    }
-    return all.find(currency => currency.name === name);
-  }
-
-  @Post()
-  create(@Body() userCurrencyDto: UserCurrencyDto) {
-    const { name, userId, amount } = userCurrencyDto;
-    const userCurrency: UserCurrency = {
-      name: name,
-      userId: userId,
-      amount: amount,
-      iconURL: './assets/' + name + '.jpg',
-      purchaseDate: new Date(),
-    };
-    userCurrencies.push(userCurrency);
-    return userCurrency;
-  }
-
-  @Patch()
-  update(
-    @Body() patchCurrencyDto: PatchCurrencyDto,
-    @Query() query: PatchCurrencyQueryDto
+  constructor(
+    private readonly userCurrenciesService: UserCurrenciesService,
+    private readonly httpService: HttpService
   ) {
-    const { userId, name } = query;
-    const currency = userCurrencies.find(currency => {
-      return currency.userId === userId &&
-        currency.name === name;
-    });
-    currency.amount = patchCurrencyDto.amount;
   }
-  
-  @Delete()
-  remove(@Query() query: DeleteCurrencyDto) {
+
+  @Get('currencies')
+  getCurrency(@Query() query: GetCurrencyDto): Promise<Currency> {
     const { userId, name } = query;
-    const currencyIndex = userCurrencies.findIndex(currency => {
-      return currency.userId === userId &&
-        currency.name === name;
-    });
-    userCurrencies.splice(currencyIndex, 1);
+    return this.userCurrenciesService.getOneCurrency(userId, name);
   }
+
+  @Get('currencies/all')
+  gelAllCurrencies(userId: number): Promise<Currency[]> {
+    return this.userCurrenciesService.getAllCurrenciesByUserId(userId);
+  }
+
+  @Post('currencies')
+  createNewCurrency(@Query() query: UserCurrencyDto): Promise<Currency> {
+    return this.userCurrenciesService.createCurrency(query);
+  }
+
+  @Patch('currencies')
+  updateCurrency(@Query() query: UpdateCurrencyDto): Promise<Currency> {
+    return this.userCurrenciesService.updateCurrency(query);
+  }
+
+  @Get('transactions')
+  getAllTransactionsByName(@Query() query: GetTransactionsDto): Promise<Transaction[]> {
+    const { userId, currencyName } = query;
+    if (userId && currencyName) {
+      return this.userCurrenciesService
+        .getAllTransactionsByNameAndUserId(currencyName, userId);
+    }
+    if (userId) {
+      return this.userCurrenciesService
+        .getAllTransactionsByUserId(userId);
+    }
+    if (currencyName) {
+      return this.userCurrenciesService
+        .getAllTransactionsByName(currencyName);
+    }
+  }
+
+  @Post('transactions')
+  createTransaction(@Query() query: CreateTransactionDto): Promise<Transaction> {
+    return this.userCurrenciesService.createTransaction(query);
+  }
+
+  // @Post('buy')
+  // buyCurrency(@Query() query: BuyCurrencyDto): Promise<Currency[]> {
+  //   const currentDate = new Date();
+  //   const { currencyName, expectedCurrencyAmount, userId, spent } = query;
+  //   const ratePromise = this.httpService.get(SERVER_RATE + 'latest/one', {
+  //     params: {
+  //       currencyName,
+  //     }
+  //   });
+  //   const realAmountPromise = this.httpService.get(SERVER_RATE + 'convert', {
+  //     params: {
+  //       to: currencyName,
+  //       amount: spent,
+  //     }
+  //   });
+  //   const userCurrencyPromise = this.userCurrenciesService
+  //     .getOneCurrency(userId, currencyName);
+  //   Promise.all([ratePromise, realAmountPromise, userCurrencyPromise]).then(values => {
+  //     const [ rate, realAmount, userCurrency ] = values;
+  //     if (userBalance < spent) {
+  //       return this.userCurrenciesService.getAllCurrenciesByUserId(userId);
+  //     }
+  //     this.userCurrenciesService.createTransaction({
+  //       userId,
+  //       currencyName,
+  //       amount: realAmount,
+  //       date: currentDate,
+  //       rate,
+  //       spent,
+  //     });
+  //     if (userCurrency) {
+  //       const newAmount = userCurrency.amount + realAmount;
+  //     }
+  //   }).then()
+  // }
+
 }

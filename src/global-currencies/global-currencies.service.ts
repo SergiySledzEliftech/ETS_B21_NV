@@ -9,21 +9,41 @@ const EXCHANGERATE_API = 'https://api.exchangerate.host/';
 export class GlobalCurrenciesService {
   constructor(private readonly httpService: HttpService) {}
 
-  getRates(base: string): Observable<AxiosResponse<any>> {
+  getRates(
+      base: string,
+      source: string
+    ): Observable<AxiosResponse<any>> {
     return this.httpService.get(EXCHANGERATE_API + 'latest', {
       params: {
         base,
+        source,
+      }
+    });
+  }
+
+  getRate(
+    base: string,
+    source: string,
+    symbols: string
+  ): Observable<AxiosResponse<any>> {
+    return this.httpService.get(EXCHANGERATE_API + 'latest', {
+      params: {
+        base,
+        source,
+        symbols
       }
     });
   }
 
   getHistory(
     date: string,
-    base: string
+    base: string,
+    source: string
   ): Observable<AxiosResponse<any>> {
     return this.httpService.get(EXCHANGERATE_API + date, {
       params: {
-        base
+        base,
+        source,
       }
     });
   }
@@ -31,13 +51,15 @@ export class GlobalCurrenciesService {
   convertCurrency(
     from: string,
     to: string,
-    amount: number
+    amount: number,
+    source: string
   ): Observable<AxiosResponse<any>> {
     return this.httpService.get(EXCHANGERATE_API + 'convert', {
       params: {
         from,
         to,
         amount,
+        source,
       }
     });
   }
