@@ -6,6 +6,7 @@ import { Observable, map } from 'rxjs';
 import { ConvertCurrencyDto } from './dto/convert-currency.dto';
 
 const BASE = 'USD';
+const SOURCE = 'crypto';
 
 @Controller('globalCurrencies')
 export class GlobalCurrenciesController {
@@ -14,14 +15,21 @@ export class GlobalCurrenciesController {
   @Get('latest')
   getRates(): Observable<AxiosResponse<any>> {
     return this.globalCurrenciesService
-      .getRates(BASE)
+      .getRates(BASE, SOURCE)
+      .pipe(map(res => res.data.rates));
+  }
+
+  @Get('latest/one')
+  getRate(@Query('currencyName') currencyName: string): Observable<AxiosResponse<any>> {
+    return this.globalCurrenciesService
+      .getRate(BASE, SOURCE, currencyName)
       .pipe(map(res => res.data.rates));
   }
 
   @Get('history')
   getHistory(@Query('date') date: string): Observable<AxiosResponse<any>> {
     return this.globalCurrenciesService
-      .getHistory(date, BASE)
+      .getHistory(date, BASE, SOURCE)
       .pipe(map(res => res.data.rates));
   }
 
@@ -29,7 +37,7 @@ export class GlobalCurrenciesController {
   convert(@Query() query: ConvertCurrencyDto) {
     const { to, amount } = query;
     return this.globalCurrenciesService
-      .convertCurrency(BASE, to, amount)
+      .convertCurrency(BASE, to, amount, SOURCE)
       .pipe(map(res => res.data));
   }
 

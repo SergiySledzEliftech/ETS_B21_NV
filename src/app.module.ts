@@ -6,7 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/products.module';
 
-import { UserCurrenciesController } from './user-currencies/user-currencies.controller';
+import { UserCurrenciesModule } from './user-currencies/user-currencies.module';
 import { GlobalCurrenciesService } from './global-currencies/global-currencies.service';
 import { GlobalCurrenciesModule } from './global-currencies/global-currencies.module';
 import { GlobalCurrenciesController } from './global-currencies/global-currencies.controller';
@@ -22,8 +22,9 @@ import { HttpModule } from '@nestjs/axios';
     HttpModule,
     UsersModule,
     GlobalCurrenciesModule,
+    UserCurrenciesModule,
   ],
-  controllers: [AppController, UserCurrenciesController, GlobalCurrenciesController],
+  controllers: [AppController, GlobalCurrenciesController],
   providers: [AppService, GlobalCurrenciesService],
 })
 export class AppModule {}

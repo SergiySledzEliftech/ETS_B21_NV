@@ -1,7 +1,7 @@
 export class UserCurrencyDto {
-  readonly userId: string;
+  readonly userId: number;
   readonly name: string;
-  readonly purchaseDate: Date;
+  readonly updatedAt: Date;
+  readonly startedAt: Date;
   readonly amount: number;
-  readonly iconURL: string;
 }
