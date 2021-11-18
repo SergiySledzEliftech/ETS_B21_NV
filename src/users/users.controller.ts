@@ -28,6 +28,11 @@ export class UsersController {
     return this.usersService.getOne(id);
   }
 
+  @Get('/balance/:id')
+  getBalance(@Param('id') id: string): Promise<number> {
+    return this.usersService.getBalance(id);
+  }
+
   @Post()
   @HttpCode(HttpStatus.CREATED)
   createUser(@Body() userDto: CreateUserDto): Promise<User> {
