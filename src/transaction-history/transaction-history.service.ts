@@ -2,10 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import TransactionInterface from './interfaces/transaction.interface';
-import {
-  Transaction,
-  TransactionDocument,
-} from '../user-currencies/schemas/transaction.schema';
+import { TransactionDocument } from '../user-currencies/schemas/transaction.schema';
 
 @Injectable()
 export class TransactionHistoryService {
@@ -13,6 +10,15 @@ export class TransactionHistoryService {
     @InjectModel('Transaction')
     private transactionModel: Model<TransactionDocument>,
   ) {}
+
+  async getNumberOfPages(currency: string, limit: string): Promise<number> {
+    const limitNum = +limit;
+    const numberOfDocuments = await this.transactionModel.countDocuments({
+      currencyName: currency,
+    });
+    const pages = numberOfDocuments / limitNum;
+    return pages;
+  }
 
   async getPaginatedTransactions(
     currency: string,
@@ -28,6 +34,7 @@ export class TransactionHistoryService {
       .skip((pageNum - 1) * limitNum)
       .select('-_id -userId -__v')
       .exec();
+
     return transactions;
   }
 }
