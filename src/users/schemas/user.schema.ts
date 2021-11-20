@@ -20,8 +20,8 @@ export class User {
   @Prop({ default: 50 })
   dollarBalance: number;
 
-  @Prop({ default: '' })
-  lastBonusTime: Date;
+  @Prop({ required: true })
+  lastBonusTime: number;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

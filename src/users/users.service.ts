@@ -1,6 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+// import { HttpCode } from '@nestjs/common';
 import { Model } from 'mongoose';
+import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User, UserDocument } from './schemas/user.schema';
 
@@ -16,8 +18,20 @@ export class UsersService {
     return this.userModel.findById(id);
   }
 
+  async getBalance(id: string): Promise<number> {
+    const { dollarBalance } = await this.userModel.findById(id);
+    return dollarBalance;
+  }
+
+  // example register
   async creatUser(userDto: CreateUserDto): Promise<User> {
+    const saltRounds = 10;
+    const password = userDto.password;
+    const hash = await bcrypt.hash(password, saltRounds);
+
     const newUser = new this.userModel(userDto);
+    newUser.password = hash;
+    newUser.lastBonusTime = Date.now();
     return newUser.save();
   }
 
@@ -26,6 +40,15 @@ export class UsersService {
   }
 
   async updateBalance({ id, userBalanceDto }): Promise<User> {
+    const { dollarBalance } = await this.userModel.findById(id);
+    const newBalance = dollarBalance + userBalanceDto.dollarBalance;
+
+    if (newBalance < 0) {
+      throw new BadRequestException(
+        'there are not enough funds on your balance',
+      );
+    }
+    userBalanceDto.dollarBalance = newBalance;
     return this.userModel.findByIdAndUpdate(id, userBalanceDto, { new: true });
   }
 }
