@@ -1,4 +1,4 @@
 export class DeleteCurrencyDto {
-  readonly userId: string;
+  readonly userId: number;
   readonly name: string;
 }

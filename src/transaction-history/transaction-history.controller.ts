@@ -23,7 +23,7 @@ export class TransactionHistoryController {
       if (!getTransactionHistoryDto.hasOwnProperty(param))
         getTransactionHistoryDto[param] = defaultParams[param];
     }
-    const data = await this.transactionHistoryService.getTransactionsByParams(
+    const data = await this.transactionHistoryService.getPaginatedTransactions(
       getTransactionHistoryDto.currency,
       getTransactionHistoryDto.page,
       getTransactionHistoryDto.limit,
