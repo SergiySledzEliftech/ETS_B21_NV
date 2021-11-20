@@ -5,7 +5,7 @@ import { Transaction } from './schemas/transaction.schema';
 
 import { HttpService } from '@nestjs/axios';
 import { AxiosResponse } from 'axios';
-import { Observable, map } from 'rxjs';
+import { Observable, map, forkJoin } from 'rxjs';
 
 import { GetCurrencyDto } from './dto/get-currency.dto';
 import { UserCurrencyDto } from './dto/user-currency.dto';
@@ -14,7 +14,7 @@ import { GetTransactionsDto } from './dto/get-transactions.dto';
 import { BuyCurrencyDto } from './dto/buy-currency.dto';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 
-const SERVER_RATE = 'localhost:4000/globalCurrencies';
+const SERVER_RATE = 'http://localhost:4000/globalCurrencies';
 let userBalance = 100000;
 
 @Controller('userCurrencies')
@@ -68,40 +68,20 @@ export class UserCurrenciesController {
     return this.userCurrenciesService.createTransaction(query);
   }
 
-  // @Post('buy')
-  // buyCurrency(@Query() query: BuyCurrencyDto): Promise<Currency[]> {
-  //   const currentDate = new Date();
-  //   const { currencyName, expectedCurrencyAmount, userId, spent } = query;
-  //   const ratePromise = this.httpService.get(SERVER_RATE + 'latest/one', {
-  //     params: {
-  //       currencyName,
-  //     }
-  //   });
-  //   const realAmountPromise = this.httpService.get(SERVER_RATE + 'convert', {
-  //     params: {
-  //       to: currencyName,
-  //       amount: spent,
-  //     }
-  //   });
-  //   const userCurrencyPromise = this.userCurrenciesService
-  //     .getOneCurrency(userId, currencyName);
-  //   Promise.all([ratePromise, realAmountPromise, userCurrencyPromise]).then(values => {
-  //     const [ rate, realAmount, userCurrency ] = values;
-  //     if (userBalance < spent) {
-  //       return this.userCurrenciesService.getAllCurrenciesByUserId(userId);
-  //     }
-  //     this.userCurrenciesService.createTransaction({
-  //       userId,
-  //       currencyName,
-  //       amount: realAmount,
-  //       date: currentDate,
-  //       rate,
-  //       spent,
-  //     });
-  //     if (userCurrency) {
-  //       const newAmount = userCurrency.amount + realAmount;
-  //     }
-  //   }).then()
-  // }
+  @Post('buy')
+  buyCurrency(@Query() query: BuyCurrencyDto): Promise<any> {
+    const currentDate = new Date();
+    const { currencyName, expectedCurrencyAmount, userId, spent } = query;
+    const observable = this.userCurrenciesService
+      .getDataForBuying(currencyName, spent)
+      // .pipe(map(response => response.data))
+      .subscribe(values => {
+        const [ rate, amount ] = values;
+        console.log(rate, amount);
+        
+      });
+    
+    return this.userCurrenciesService.getAllCurrenciesByUserId(userId);
+  }
 
 }
