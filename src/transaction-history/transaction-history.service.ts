@@ -16,7 +16,7 @@ export class TransactionHistoryService {
     const numberOfDocuments = await this.transactionModel.countDocuments({
       currencyName: currency,
     });
-    const pages = numberOfDocuments / limitNum;
+    const pages = Math.ceil(numberOfDocuments / limitNum);
     return pages;
   }
 
