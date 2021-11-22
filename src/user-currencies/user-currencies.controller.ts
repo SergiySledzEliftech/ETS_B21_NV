@@ -1,11 +1,15 @@
-import { Body, Controller, Delete, Get, Injectable, Patch, Post, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { UserCurrenciesService } from './user-currencies.service'
 import { Currency } from './schemas/currency.schema';
 import { Transaction } from './schemas/transaction.schema';
 
-import { HttpService } from '@nestjs/axios';
-import { AxiosResponse } from 'axios';
-import { Observable, map, forkJoin } from 'rxjs';
+import { Observable, from, mergeMap } from 'rxjs';
 
 import { GetCurrencyDto } from './dto/get-currency.dto';
 import { UserCurrencyDto } from './dto/user-currency.dto';
@@ -14,15 +18,12 @@ import { GetTransactionsDto } from './dto/get-transactions.dto';
 import { BuyCurrencyDto } from './dto/buy-currency.dto';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 
-const SERVER_RATE = 'http://localhost:4000/globalCurrencies';
-let userBalance = 100000;
+const SERVER = 'http://localhost:4000';
+const USERS_BALANCE = '/users/balance';
 
 @Controller('userCurrencies')
 export class UserCurrenciesController {
-  constructor(
-    private readonly userCurrenciesService: UserCurrenciesService,
-    private readonly httpService: HttpService
-  ) {
+  constructor(private readonly userCurrenciesService: UserCurrenciesService) {
   }
 
   @Get('currencies')
@@ -32,7 +33,7 @@ export class UserCurrenciesController {
   }
 
   @Get('currencies/all')
-  gelAllCurrencies(userId: number): Promise<Currency[]> {
+  gelAllCurrencies(@Query('userId') userId: string): Promise<Currency[]> {
     return this.userCurrenciesService.getAllCurrenciesByUserId(userId);
   }
 
@@ -69,19 +70,34 @@ export class UserCurrenciesController {
   }
 
   @Post('buy')
-  buyCurrency(@Query() query: BuyCurrencyDto): Promise<any> {
+  buyCurrency(@Query() query: BuyCurrencyDto): Observable<any> {
     const currentDate = new Date();
-    const { currencyName, expectedCurrencyAmount, userId, spent } = query;
-    const observable = this.userCurrenciesService
-      .getDataForBuying(currencyName, spent)
-      // .pipe(map(response => response.data))
-      .subscribe(values => {
-        const [ rate, amount ] = values;
-        console.log(rate, amount);
-        
-      });
-    
-    return this.userCurrenciesService.getAllCurrenciesByUserId(userId);
+    const { currencyName, userId, spent } = query;
+
+    return this.userCurrenciesService
+      .getDataForBuying(currencyName, spent, userId)
+      .pipe(mergeMap(values => {
+        const [ rate, amount, balance, currency ] = values;
+        console.log(rate, amount, balance, currency);
+        if (balance < spent) {
+          return this.userCurrenciesService
+            .getAllCurrenciesByUserId(userId);
+        }
+        return this.userCurrenciesService
+          .updateDataForBuying({
+            userId,
+            currencyName,
+            spent,
+            rate,
+            amount,
+            currency,
+            currentDate,
+          });
+      },
+    )).pipe(mergeMap(values => {
+      console.log(values);
+      return from(this.userCurrenciesService.getAllCurrenciesByUserId(userId));
+    }));
   }
 
 }

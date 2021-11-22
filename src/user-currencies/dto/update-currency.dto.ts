@@ -1,6 +1,6 @@
 export class UpdateCurrencyDto {
   readonly amount: number;
   readonly updatedAt: Date;
-  readonly userId: number;
+  readonly userId: string;
   readonly name: string;
 }

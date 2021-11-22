@@ -1,5 +1,5 @@
 export class CreateTransactionDto {
-  userId: number;
+  userId: string;
   currencyName: string;
   amount: number;
   date: Date;

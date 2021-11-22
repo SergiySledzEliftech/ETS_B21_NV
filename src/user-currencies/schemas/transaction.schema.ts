@@ -6,7 +6,7 @@ export type TransactionDocument = Transaction & Document;
 @Schema()
 export class Transaction {
   @Prop()
-  userId: number;
+  userId: string;
 
   @Prop()
   currencyName: string;

@@ -6,13 +6,16 @@ import { Transaction, TransactionDocument } from './schemas/transaction.schema';
 
 import { HttpService } from '@nestjs/axios';
 import { AxiosResponse } from 'axios';
-import { Observable, map, forkJoin } from 'rxjs';
+import { Observable, map, forkJoin, from } from 'rxjs';
 
 import { UserCurrencyDto } from './dto/user-currency.dto';
 import { UpdateCurrencyDto } from './dto/update-currency.dto';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { UpdateDataForBuyingDto } from './dto/update-data-for-buying.dto';
 
-const SERVER_RATE = 'http://localhost:4000/globalCurrencies';
+const SERVER = 'http://localhost:4000';
+const RATE = '/globalCurrencies';
+const USERS = '/users';
 
 @Injectable()
 export class UserCurrenciesService {
@@ -24,7 +27,7 @@ export class UserCurrenciesService {
 
   // currencies methods
 
-  async getAllCurrenciesByUserId(userId: number): Promise<Currency[]> {
+  async getAllCurrenciesByUserId(userId: string): Promise<Currency[]> {
     return this.currencyModel.find({ userId });
   }
 
@@ -33,7 +36,7 @@ export class UserCurrenciesService {
   }
 
   async getOneCurrency(
-    userId: number,
+    userId: string,
     name: string
   ): Promise<Currency> {
     return this.currencyModel.findOne({ name, userId });
@@ -45,7 +48,7 @@ export class UserCurrenciesService {
   }
 
   async removeCurrency(
-    userId: number, 
+    userId: string, 
     name: string
   ): Promise<Currency> {
     return this.currencyModel.findOneAndRemove({ name, userId });
@@ -53,12 +56,11 @@ export class UserCurrenciesService {
 
   async updateCurrency(updateDto: UpdateCurrencyDto): Promise<Currency> {
     const { userId, amount, name, updatedAt } = updateDto;
-    return this.currencyModel.findOneAndUpdate({ userId, name }, { amount, updatedAt });
+    return this.currencyModel
+      .findOneAndUpdate({ userId, name }, { amount, updatedAt });
   }
-
-  // transactions methods
-
-  async getAllTransactionsByUserId(userId: number): Promise<Transaction[]> {
+  
+  async getAllTransactionsByUserId(userId: string): Promise<Transaction[]> {
     return this.transactionModel.find({ userId });
   }
 
@@ -68,7 +70,7 @@ export class UserCurrenciesService {
 
   async getAllTransactionsByNameAndUserId(
     currencyName: string,
-    userId: number
+    userId: string
   ): Promise<Transaction[]> {
     return this.transactionModel.find({ currencyName, userId });
   }
@@ -80,23 +82,86 @@ export class UserCurrenciesService {
 
   getDataForBuying(
     currencyName: string,
-    spent: number
-  ): Observable<any> {
+    spent: number,
+    userId: string
+  ): Observable<Array<any>> {
     const rateObservable = this.httpService
-      .get(SERVER_RATE + '/latest/one', {
+      .get(SERVER + RATE + '/latest/one', {
       params: {
         currencyName,
       }
     })
       .pipe(map(response => response.data.rates[currencyName]));
+    
     const amountObservable = this.httpService
-      .get(SERVER_RATE + '/convert', {
+      .get(SERVER + RATE + '/convert', {
       params: {
         to: currencyName,
         amount: spent,
       }
     })
       .pipe(map(response => response.data.result));
-    return forkJoin([ rateObservable, amountObservable ]);
+    
+    const balanceObservable = this.httpService
+      .get(SERVER + USERS + '/balance/' + userId)
+      .pipe(map(response => response.data));
+
+    const currencyObservable = from(this
+      .getOneCurrency(userId, currencyName));
+    
+    return forkJoin([
+      rateObservable,
+      amountObservable,
+      balanceObservable,
+      currencyObservable
+    ]);
+  }
+
+  updateDataForBuying(dto: UpdateDataForBuyingDto): Observable<Array<any>> {
+    const {
+      userId,
+      currencyName,
+      amount,
+      currentDate,
+      rate,
+      spent,
+      currency,
+    } = dto;
+    console.log(spent);
+    const balanceUpdateObservable = this.httpService
+      .put(SERVER + USERS + '/balance/' + userId, {
+      dollarBalance: -spent,
+    })
+      .pipe(map(response => response.data));
+
+    const transactionObservable = from(this
+      .createTransaction({
+        userId,
+        currencyName,
+        amount,
+        date: currentDate,
+        rate,
+        spent,
+    }));
+    
+    let currencyObservable;
+    if (!currency) {
+      currencyObservable = from(this.createCurrency({
+        userId,
+        name: currencyName,
+        startedAt: currentDate,
+        updatedAt: currentDate,
+        amount,
+      }));
+    } else {
+      const newAmount = currency.amount + amount;
+      currencyObservable = from(this.updateCurrency({
+        amount: newAmount,
+        updatedAt: currentDate,
+        userId,
+        name: currencyName,
+      }));
+    }
+    return forkJoin(currencyObservable, transactionObservable, balanceUpdateObservable);
   }
 }
