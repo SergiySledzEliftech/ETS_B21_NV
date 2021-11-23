@@ -15,7 +15,7 @@ export class UsersService {
   }
 
   async getOne(id: string): Promise<User> {
-    return this.userModel.findById(id);
+    return this.userModel.findById(id).select(' -password');
   }
 
   async getBalance(id: string): Promise<number> {

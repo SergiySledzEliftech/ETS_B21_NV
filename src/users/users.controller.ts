@@ -24,8 +24,11 @@ export class UsersController {
   }
 
   @Get(':id')
-  getOne(@Param('id') id: string): Promise<User> {
-    return this.usersService.getOne(id);
+  async getOne(@Param('id') id: string): Promise<User> {
+    const result = await this.usersService.getOne(id);
+    console.log(result);
+
+    return result;
   }
 
   @Get('/balance/:id')
