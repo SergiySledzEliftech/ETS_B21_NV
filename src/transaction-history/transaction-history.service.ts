@@ -11,11 +11,18 @@ export class TransactionHistoryService {
     private transactionModel: Model<TransactionDocument>,
   ) {}
 
-  async getNumberOfPages(currency: string, limit: string): Promise<number> {
+  async getNumberOfPages(
+    currency: string,
+    limit: string,
+    userId: string,
+  ): Promise<number> {
     const limitNum = +limit;
-    const numberOfDocuments = await this.transactionModel.countDocuments({
-      currencyName: currency,
-    });
+    const documentToFind = {};
+    if (currency !== 'ALL') documentToFind['currencyName'] = currency;
+    if (userId) documentToFind['userId'] = userId;
+    const numberOfDocuments = await this.transactionModel.countDocuments(
+      documentToFind,
+    );
     const pages = Math.ceil(numberOfDocuments / limitNum);
     return pages;
   }
@@ -24,12 +31,16 @@ export class TransactionHistoryService {
     currency: string,
     page: string,
     limit: string,
+    userId: string,
   ): Promise<TransactionInterface[]> {
     const pageNum = +page;
     const limitNum = +limit;
 
+    const documentToFind = {};
+    if (currency !== 'ALL') documentToFind['currencyName'] = currency;
+    if (userId) documentToFind['userId'] = userId;
     const transactions = await this.transactionModel
-      .find({ currencyName: currency })
+      .find(documentToFind)
       .limit(limitNum)
       .skip((pageNum - 1) * limitNum)
       .select('-_id -userId -__v')

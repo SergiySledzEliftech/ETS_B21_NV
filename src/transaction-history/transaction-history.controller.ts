@@ -1,7 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import TransactionInterface from './interfaces/transaction.interface';
 import { TransactionHistoryService } from './transaction-history.service';
 import GetTransactionHistoryDto from './dto/get-transaction-history.dto';
+import ReturnTransactionHistoryDto from './dto/return-transaction-history.dto';
 
 @Controller('transaction-history')
 export class TransactionHistoryController {
@@ -12,16 +12,18 @@ export class TransactionHistoryController {
   @Get()
   async getTransactionHistory(
     @Query() getTransactionHistoryDto: GetTransactionHistoryDto,
-  ): Promise<[TransactionInterface[], number]> {
+  ): Promise<ReturnTransactionHistoryDto> {
     const {
-      currency = 'USD',
+      currency = 'ALL',
       page = '1',
       limit = '2',
+      userId,
     } = getTransactionHistoryDto;
 
     const numberOfPages = await this.transactionHistoryService.getNumberOfPages(
       currency,
       limit,
+      userId,
     );
 
     const transactions =
@@ -29,7 +31,8 @@ export class TransactionHistoryController {
         currency,
         page,
         limit,
+        userId,
       );
-    return [transactions, numberOfPages];
+    return { data: transactions, numberOfPages, currentPage: page };
   }
 }
