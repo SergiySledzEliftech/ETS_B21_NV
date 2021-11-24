@@ -14,6 +14,7 @@ export class GlobalCurrenciesController {
 
   @Get('latest')
   getRates(): Observable<AxiosResponse<any>> {
+    console.log('latest');
     return this.globalCurrenciesService
       .getRates(BASE, SOURCE)
       .pipe(map(res => res.data.rates));
@@ -21,9 +22,11 @@ export class GlobalCurrenciesController {
 
   @Get('latest/one')
   getRate(@Query('currencyName') currencyName: string): Observable<AxiosResponse<any>> {
+    console.log('getting rate one');
+    
     return this.globalCurrenciesService
       .getRate(BASE, SOURCE, currencyName)
-      .pipe(map(res => res.data.rates));
+      .pipe(map(res => res.data));
   }
 
   @Get('history')
@@ -36,6 +39,7 @@ export class GlobalCurrenciesController {
   @Get('convert')
   convert(@Query() query: ConvertCurrencyDto) {
     const { to, amount } = query;
+    console.log('converting:', to, amount);
     return this.globalCurrenciesService
       .convertCurrency(BASE, to, amount, SOURCE)
       .pipe(map(res => res.data));

@@ -1,5 +1,5 @@
 export class UserCurrencyDto {
-  readonly userId: number;
+  readonly userId: string;
   readonly name: string;
   readonly updatedAt: Date;
   readonly startedAt: Date;
