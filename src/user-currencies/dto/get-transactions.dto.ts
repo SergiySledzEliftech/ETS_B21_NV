@@ -1,4 +1,4 @@
 export class GetTransactionsDto {
-  readonly userId: number | undefined;
+  readonly userId: string | undefined;
   readonly currencyName: string | undefined;
 }
