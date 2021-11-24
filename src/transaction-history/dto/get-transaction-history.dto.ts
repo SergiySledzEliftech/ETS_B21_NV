@@ -3,4 +3,5 @@ export default class GetTransactionHistoryDto {
   readonly page: string;
   readonly limit: string;
   readonly userId: string;
+  readonly dateRange: string;
 }

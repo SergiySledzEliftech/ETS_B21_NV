@@ -3,6 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import TransactionInterface from './interfaces/transaction.interface';
 import { TransactionDocument } from '../user-currencies/schemas/transaction.schema';
+import DocumentToFind from './interfaces/documentToFind.interface';
+import GetTransactionHistoryDto from './dto/get-transaction-history.dto';
 
 @Injectable()
 export class TransactionHistoryService {
@@ -11,15 +13,27 @@ export class TransactionHistoryService {
     private transactionModel: Model<TransactionDocument>,
   ) {}
 
-  async getNumberOfPages(
-    currency: string,
-    limit: string,
-    userId: string,
-  ): Promise<number> {
-    const limitNum = +limit;
+  createDocumentToFind(
+    getTransactionHistoryDto: GetTransactionHistoryDto,
+  ): DocumentToFind {
+    const { currency = 'ALL', userId, dateRange } = getTransactionHistoryDto;
+
     const documentToFind = {};
     if (currency !== 'ALL') documentToFind['currencyName'] = currency;
     if (userId) documentToFind['userId'] = userId;
+    if (dateRange) {
+      documentToFind['date'] = {
+        $gte: dateRange.split('#')[0],
+        $lt: dateRange.split('#')[1],
+      };
+    }
+    return documentToFind;
+  }
+
+  async getNumberOfPages(
+    documentToFind: DocumentToFind,
+    limitNum: number,
+  ): Promise<number> {
     const numberOfDocuments = await this.transactionModel.countDocuments(
       documentToFind,
     );
@@ -28,17 +42,10 @@ export class TransactionHistoryService {
   }
 
   async getPaginatedTransactions(
-    currency: string,
-    page: string,
-    limit: string,
-    userId: string,
+    documentToFind: DocumentToFind,
+    limitNum: number,
+    pageNum: number,
   ): Promise<TransactionInterface[]> {
-    const pageNum = +page;
-    const limitNum = +limit;
-
-    const documentToFind = {};
-    if (currency !== 'ALL') documentToFind['currencyName'] = currency;
-    if (userId) documentToFind['userId'] = userId;
     const transactions = await this.transactionModel
       .find(documentToFind)
       .limit(limitNum)

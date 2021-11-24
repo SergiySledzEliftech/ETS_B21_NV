@@ -13,25 +13,24 @@ export class TransactionHistoryController {
   async getTransactionHistory(
     @Query() getTransactionHistoryDto: GetTransactionHistoryDto,
   ): Promise<ReturnTransactionHistoryDto> {
-    const {
-      currency = 'ALL',
-      page = '1',
-      limit = '2',
-      userId,
-    } = getTransactionHistoryDto;
+    const { limit, page } = getTransactionHistoryDto;
+    const limitNum = +limit;
+    const pageNum = +page;
+
+    const documentToFind = this.transactionHistoryService.createDocumentToFind(
+      getTransactionHistoryDto,
+    );
 
     const numberOfPages = await this.transactionHistoryService.getNumberOfPages(
-      currency,
-      limit,
-      userId,
+      documentToFind,
+      limitNum,
     );
 
     const transactions =
       await this.transactionHistoryService.getPaginatedTransactions(
-        currency,
-        page,
-        limit,
-        userId,
+        documentToFind,
+        limitNum,
+        pageNum,
       );
     return { data: transactions, numberOfPages, currentPage: page };
   }
