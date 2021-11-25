@@ -8,7 +8,7 @@ export class User {
   @Prop({ required: true })
   nickname: string;
 
-  @Prop({ required: true })
+  @Prop({ required: false })
   password: string;
 
   @Prop({ required: true })
@@ -20,8 +20,8 @@ export class User {
   @Prop({ default: 50 })
   dollarBalance: number;
 
-  @Prop({ default: '' })
-  lastBonusTime: Date;
+  @Prop({ required: true })
+  lastBonusTime: number;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

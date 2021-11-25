@@ -5,6 +5,14 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './schemas/user.schema';
 import { UsersService } from './users.service';
 
+interface IFilteredUser {
+  readonly nickname: string;
+  readonly email: string;
+  readonly avatar: string;
+  readonly dollarBalance: number;
+  readonly lastBonusTime: number;
+}
+
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
@@ -19,17 +27,29 @@ export class UsersController {
     return this.usersService.getOne(id);
   }
 
-  
+
   @Get('get/:email')
   getOneByEmail(@Param('email') email: string): Promise<User> {
     return this.usersService.getOneByEmail(email);
   }
-  
-  
+
+
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  createUser(@Body() userDto: CreateUserDto): Promise<User> {
-    return this.usersService.registrateUser(userDto);
+  async createUser(@Body() userDto: CreateUserDto): Promise<IFilteredUser> {
+    const newUser = await this.usersService.registrateUser(userDto);
+    const filtered: IFilteredUser = {
+      nickname: newUser.nickname,
+      email: newUser.email,
+      avatar: newUser.avatar,
+      dollarBalance: newUser.dollarBalance,
+      lastBonusTime: newUser.lastBonusTime,
+    }
+    //console.log(newUser)
+    //const { password, ...filteredUser } = newUser
+    //console.log(filteredUser)
+
+    return filtered;
   }
 
   @Patch(':id')

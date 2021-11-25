@@ -4,5 +4,5 @@ export class CreateUserDto {
   password: string;
   readonly avatar: string;
   readonly dollarBalance: number;
-  readonly lastBonusTime: string;
+  readonly lastBonusTime: number;
 }
