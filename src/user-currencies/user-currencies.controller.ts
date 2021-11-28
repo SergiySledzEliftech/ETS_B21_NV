@@ -1,11 +1,12 @@
 import {
+  Body,
   Controller,
   Get,
   Patch,
   Post,
   Query,
 } from '@nestjs/common';
-import { UserCurrenciesService } from './user-currencies.service'
+import { UserCurrenciesService } from './user-currencies.service';
 import { Currency } from './schemas/currency.schema';
 import { Transaction } from './schemas/transaction.schema';
 
@@ -38,12 +39,12 @@ export class UserCurrenciesController {
   }
 
   @Post('currencies')
-  createNewCurrency(@Query() query: UserCurrencyDto): Promise<Currency> {
+  createNewCurrency(@Body() query: UserCurrencyDto): Promise<Currency> {
     return this.userCurrenciesService.createCurrency(query);
   }
 
   @Patch('currencies')
-  updateCurrency(@Query() query: UpdateCurrencyDto): Promise<Currency> {
+  updateCurrency(@Body() query: UpdateCurrencyDto): Promise<Currency> {
     return this.userCurrenciesService.updateCurrency(query);
   }
 
@@ -65,39 +66,8 @@ export class UserCurrenciesController {
   }
 
   @Post('transactions')
-  createTransaction(@Query() query: CreateTransactionDto): Promise<Transaction> {
+  createTransaction(@Body() query: CreateTransactionDto): Promise<Transaction> {
     return this.userCurrenciesService.createTransaction(query);
-  }
-
-  @Post('buy')
-  buyCurrency(@Query() query: BuyCurrencyDto): Observable<any> {
-    const currentDate = new Date();
-    const { currencyName, userId, spent } = query;
-
-    return this.userCurrenciesService
-      .getDataForBuying(currencyName, spent, userId)
-      .pipe(mergeMap(values => {
-        const [ rate, amount, balance, currency ] = values;
-        console.log(rate, amount, balance, currency);
-        if (balance < spent) {
-          return this.userCurrenciesService
-            .getAllCurrenciesByUserId(userId);
-        }
-        return this.userCurrenciesService
-          .updateDataForBuying({
-            userId,
-            currencyName,
-            spent,
-            rate,
-            amount,
-            currency,
-            currentDate,
-          });
-      },
-    )).pipe(mergeMap(values => {
-      console.log(values);
-      return from(this.userCurrenciesService.getAllCurrenciesByUserId(userId));
-    }));
   }
 
 }
