@@ -7,6 +7,7 @@ import { Observable } from 'rxjs';
 import { TradeService } from './trade.service';
 
 import { BuyCurrencyDto } from './dto/buy-currency.dto';
+import { SellCurrencyDto } from './dto/sell-currency.dto';
 
 @Controller('trade')
 export class TradeController {
