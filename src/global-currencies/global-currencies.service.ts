@@ -63,4 +63,37 @@ export class GlobalCurrenciesService {
       }
     });
   }
+
+  getChanges (
+    base: string,
+    source: string,
+    startDate: string,
+    endDate: string
+    ): Observable<AxiosResponse<any>> {
+    const params = {
+      "start_date": startDate,
+      "end_date": endDate,
+      source,
+      base
+    }
+
+    return this.httpService.get(EXCHANGERATE_API + 'fluctuation', {params})
+}
+
+
+  getPeriodRates(
+    base: string,
+    source: string,
+    startDate: string,
+    endDate: string
+    ): Observable<AxiosResponse<any>> {
+    const params = {
+      "start_date": startDate,
+      "end_date": endDate,
+      source,
+      base
+    } 
+
+    return this.httpService.get(EXCHANGERATE_API + 'timeseries', {params})
+  }
 }
