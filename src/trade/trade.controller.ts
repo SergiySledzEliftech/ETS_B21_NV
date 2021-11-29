@@ -3,15 +3,10 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-
 import { Observable } from 'rxjs';
 import { TradeService } from './trade.service';
 
 import { BuyCurrencyDto } from './dto/buy-currency.dto';
-
-const SERVER = 'http://localhost:4000';
-const USERS_BALANCE = '/users/balance';
-
 
 @Controller('trade')
 export class TradeController {

@@ -13,7 +13,6 @@ const USERS = '/users';
 const USER_CURRENCIES = '/userCurrencies';
 
 const BALANCE = '/balance';
-const CURRENCIES = '/currencies';
 const TRANSACTIONS = '/transactions';
 
 @Injectable()
@@ -33,7 +32,7 @@ export class TradeService {
         console.log(rate, amount, balance, currency);
         if (balance < spent) {
           return this.httpService
-            .get(SERVER + USER_CURRENCIES + CURRENCIES + '/all', {
+            .get(SERVER + USER_CURRENCIES + '/all', {
               params: {
                 userId,
               }
@@ -53,7 +52,7 @@ export class TradeService {
     )).pipe(mergeMap(values => {
       console.log(values);
       return this.httpService
-        .get(SERVER + USER_CURRENCIES + CURRENCIES + '/all', {
+        .get(SERVER + USER_CURRENCIES + '/all', {
         params: {
           userId,
         }
@@ -88,7 +87,7 @@ export class TradeService {
       .pipe(map(response => response.data));
 
     const currencyObservable = this.httpService
-      .get(SERVER + USER_CURRENCIES + CURRENCIES, {
+      .get(SERVER + USER_CURRENCIES, {
         params: {
           userId,
           name: currencyName,
@@ -103,6 +102,8 @@ export class TradeService {
       currencyObservable
     ]);
   }
+
+  getNewCurrencyObservable() {}
 
   updateDataForBuying(dto: UpdateDataForBuyingDto): Observable<Array<any>> {
     const {
@@ -122,7 +123,7 @@ export class TradeService {
       .pipe(map(response => response.data));
 
     const transactionObservable = this.httpService
-      .post(SERVER + USER_CURRENCIES + TRANSACTIONS, {
+      .post(SERVER + TRANSACTIONS, {
       amount,
       date: currentDate,
       rate,
@@ -133,7 +134,7 @@ export class TradeService {
     let currencyObservable;
     if (!currency) {
       currencyObservable = this.httpService
-        .post(SERVER + USER_CURRENCIES + CURRENCIES, {
+        .post(SERVER + USER_CURRENCIES, {
         userId,
         name: currencyName,
         startedAt: currentDate,
@@ -144,7 +145,7 @@ export class TradeService {
     } else {
       const newAmount = currency.amount + amount;
       currencyObservable = this.httpService
-        .patch(SERVER + USER_CURRENCIES + CURRENCIES, {
+        .patch(SERVER + USER_CURRENCIES, {
         amount: newAmount,
         updatedAt: currentDate,
         userId,
@@ -152,10 +153,10 @@ export class TradeService {
       })
       .pipe(map(response => response.data));
     }
-    return forkJoin(
+    return forkJoin([
       currencyObservable,
       transactionObservable,
       balanceUpdateObservable
-    );
+    ]);
   }
 }

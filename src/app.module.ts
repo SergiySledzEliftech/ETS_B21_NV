@@ -4,19 +4,13 @@ import { ConfigModule } from '@nestjs/config';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+
 import { UsersModule } from './users/users.module';
-
 import { TradeModule } from './trade/trade.module';
-
 import { UserCurrenciesModule } from './user-currencies/user-currencies.module';
-import { GlobalCurrenciesService } from './global-currencies/global-currencies.service';
 import { GlobalCurrenciesModule } from './global-currencies/global-currencies.module';
-import { GlobalCurrenciesController } from './global-currencies/global-currencies.controller';
-
 import { HttpModule } from '@nestjs/axios';
-import { TransactionsController } from './transactions/transactions.controller';
-import { TradeController } from './trade/trade.controller';
-import { TradeService } from './trade/trade.service';
+import { TransactionsModule } from './transactions/transactions.module';
 
 @Module({
   imports: [
@@ -29,17 +23,13 @@ import { TradeService } from './trade/trade.service';
     GlobalCurrenciesModule,
     UserCurrenciesModule,
     TradeModule,
+    TransactionsModule
   ],
   controllers: [
-    AppController,
-    GlobalCurrenciesController,
-    TransactionsController,
-    TradeController
+    AppController
   ],
   providers: [
-    AppService,
-    GlobalCurrenciesService,
-    TradeService
+    AppService
   ],
 })
 export class AppModule {}

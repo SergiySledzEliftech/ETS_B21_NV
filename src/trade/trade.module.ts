@@ -9,5 +9,6 @@ import { HttpModule } from '@nestjs/axios';
   ],
   controllers: [TradeController],
   providers: [TradeService],
+  exports: [TradeService]
 })
 export class TradeModule {}
