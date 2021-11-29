@@ -7,5 +7,6 @@ import { GlobalCurrenciesService } from './global-currencies.service';
   imports: [HttpModule],
   controllers: [GlobalCurrenciesController],
   providers: [GlobalCurrenciesService],
+  exports: [GlobalCurrenciesService]
 })
 export class GlobalCurrenciesModule {}
