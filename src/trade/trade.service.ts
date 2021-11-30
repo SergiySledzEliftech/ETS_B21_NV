@@ -64,7 +64,7 @@ export class TradeService {
       },
     )).pipe(mergeMap(result => {
       if (typeof result === 'string') return of({ result });
-      return of({result: 'success'});
+      return of({ result: 'success' });
     }));
   }
 
