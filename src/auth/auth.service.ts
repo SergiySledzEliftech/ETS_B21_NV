@@ -2,34 +2,53 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-
+interface IFilteredUser {
+  readonly _id: string;
+  readonly nickname: string;
+  readonly email: string;
+  readonly avatar: string;
+  readonly dollarBalance: number;
+  readonly lastBonusTime: number;
+}
 @Injectable()
 export class AuthService {
-    constructor(
-        private usersService: UsersService,
-        private readonly jwtService: JwtService
-    ) { }
+  constructor(
+    private usersService: UsersService,
+    private readonly jwtService: JwtService,
+  ) {}
 
-    async validateUser(email: string, pass: string): Promise<any> {
-        const user = await this.usersService.getOneByEmail(email);
-        if (user) {
-            // const hash = await bcrypt.hash(pass, +process.env.SALT);
-            const isMatch = await bcrypt.compare(pass, user.password);
+  async validateUser(email: string, pass: string): Promise<IFilteredUser> {
+    const user = await this.usersService.getOneByEmail(email);
 
-            if (isMatch) {
-                const { password, ...result } = user;
-                return result;
-            }
-            throw new HttpException('Password is incorrect', HttpStatus.UNAUTHORIZED);
-        } else {
-            throw new HttpException('Email is incorrect', HttpStatus.UNAUTHORIZED);
-        }
-    }
+    if (user) {
+      const isMatch = await bcrypt.compare(pass, user.password);
 
-    async login(user: any) {
-        const payload = { username: user.nickname, sub: user._id };
+      if (isMatch) {
         return {
-            access_token: this.jwtService.sign(payload),
+          _id: user._id.toString(),
+          nickname: user.nickname,
+          email: user.email,
+          avatar: user.avatar,
+          dollarBalance: user.dollarBalance,
+          lastBonusTime: user.lastBonusTime,
         };
+      }
+
+      return null;
     }
+
+    return null;
+  }
+
+  async login(user: any) {
+    const payload = {
+      username: user.nickname,
+      email: user.email,
+      sub: user._id,
+    };
+
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
+  }
 }

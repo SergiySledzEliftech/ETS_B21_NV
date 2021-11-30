@@ -5,10 +5,9 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { User, UserDocument } from './schemas/user.schema';
 import * as bcrypt from 'bcrypt';
 
-
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) { }
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async getAll(): Promise<User[]> {
     return this.userModel.find().exec();
@@ -19,24 +18,33 @@ export class UsersService {
   }
 
   //auth
-  async getOneByEmail(email: string): Promise<User | undefined> {
+  // TODO: Update schema.
+  async getOneByEmail(email: string): Promise<User | undefined | any> {
     return this.userModel.findOne({ email });
   }
+  // TODO: Update schema.
+  async registrateUser(userDto: CreateUserDto): Promise<User | any> {
+    const { email, nickname, password } = userDto;
 
+    if (!email || !nickname || !password) {
+      throw new HttpException('User data is not valid.', HttpStatus.FORBIDDEN);
+    }
 
-  async registrateUser(userDto: CreateUserDto): Promise<User> {
-    const { email } = userDto;
     const checkUser = await this.getOneByEmail(email);
 
     if (checkUser) {
-      throw new HttpException('User with this email adress is already exsists', HttpStatus.FORBIDDEN);
+      throw new HttpException(
+        'User with this email dares is already exists',
+        HttpStatus.FORBIDDEN,
+      );
     } else {
       const pass = userDto.password;
       const hash = await bcrypt.hash(pass, +process.env.SALT);
-      
+
       const newUser = new this.userModel(userDto);
       newUser.password = hash;
       newUser.lastBonusTime = Date.now();
+
       return await newUser.save();
     }
   }

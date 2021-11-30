@@ -1,9 +1,19 @@
-import { Controller, Get, Post, Param, Body, Patch, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Param,
+  Body,
+  Patch,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserBalanceDto } from './dto/update-user-balance.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './schemas/user.schema';
 import { UsersService } from './users.service';
+// import { JwtService } from '@nestjs/jwt';
 
 interface IFilteredUser {
   readonly nickname: string;
@@ -15,7 +25,10 @@ interface IFilteredUser {
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(
+    private readonly usersService: UsersService,
+    // private readonly jwtService: JwtService,
+  ) {}
 
   @Get()
   getUsers(): Promise<User[]> {
@@ -27,29 +40,28 @@ export class UsersController {
     return this.usersService.getOne(id);
   }
 
-
   @Get('get/:email')
   getOneByEmail(@Param('email') email: string): Promise<User> {
     return this.usersService.getOneByEmail(email);
   }
 
-
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async createUser(@Body() userDto: CreateUserDto): Promise<IFilteredUser> {
+  async createUser(@Body() userDto: CreateUserDto): Promise<any> {
     const newUser = await this.usersService.registrateUser(userDto);
-    const filtered: IFilteredUser = {
+
+    return {
+      // access_token: this.jwtService.sign({
+      //   username: newUser.nickname,
+      //   email: newUser.email,
+      //   sub: newUser._id,
+      // }),
       nickname: newUser.nickname,
       email: newUser.email,
       avatar: newUser.avatar,
       dollarBalance: newUser.dollarBalance,
       lastBonusTime: newUser.lastBonusTime,
-    }
-    //console.log(newUser)
-    //const { password, ...filteredUser } = newUser
-    //console.log(filteredUser)
-
-    return filtered;
+    };
   }
 
   @Patch(':id')

@@ -16,7 +16,7 @@ import { UserCurrenciesController } from './user-currencies/user-currencies.cont
       `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.v3bg0.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`,
     ),
     UsersModule,
-    AuthModule
+    AuthModule,
   ],
   controllers: [AppController, UserCurrenciesController],
   providers: [AppService],

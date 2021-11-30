@@ -5,8 +5,8 @@ import { LocalAuthGuard } from './auth/local-auth.quard';
 
 @Controller()
 export class AppController {
-  constructor(private authService: AuthService) {}
-  
+  constructor(private authService: AuthService) { }
+
   @UseGuards(LocalAuthGuard)
   @Post('users/login')
   async login(@Request() req) {
@@ -14,8 +14,10 @@ export class AppController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('users/profile')
+  @Post('users/profile')
   getProfile(@Request() req) {
-    return req.user;
+
+    // User is existed
+    return req.user.userId;
   }
 }

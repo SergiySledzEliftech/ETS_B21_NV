@@ -1,0 +1,344 @@
+diff --git a/src/app.controller.ts b/src/app.controller.ts
+index 82504d3..fff8965 100644
+--- a/src/app.controller.ts
++++ b/src/app.controller.ts
+@@ -5,8 +5,8 @@ import { LocalAuthGuard } from './auth/local-auth.quard';
+ 
+ @Controller()
+ export class AppController {
+-  constructor(private authService: AuthService) {}
+-  
++  constructor(private authService: AuthService) { }
++
+   @UseGuards(LocalAuthGuard)
+   @Post('users/login')
+   async login(@Request() req) {
+@@ -14,8 +14,10 @@ export class AppController {
+   }
+ 
+   @UseGuards(JwtAuthGuard)
+-  @Get('users/profile')
++  @Post('users/profile')
+   getProfile(@Request() req) {
+-    return req.user;
++
++    // User is existed
++    return req.user.userId;
+   }
+-}
+\ No newline at end of file
++}
+diff --git a/src/app.module.ts b/src/app.module.ts
+index 036a590..8129e5c 100644
+--- a/src/app.module.ts
++++ b/src/app.module.ts
+@@ -16,9 +16,9 @@ import { UserCurrenciesController } from './user-currencies/user-currencies.cont
+       `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.v3bg0.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`,
+     ),
+     UsersModule,
+-    AuthModule
++    AuthModule,
+   ],
+   controllers: [AppController, UserCurrenciesController],
+   providers: [AppService],
+ })
+-export class AppModule {}
+\ No newline at end of file
++export class AppModule {}
+diff --git a/src/auth/auth.module.ts b/src/auth/auth.module.ts
+index 6299899..c2e2018 100644
+--- a/src/auth/auth.module.ts
++++ b/src/auth/auth.module.ts
+@@ -5,22 +5,19 @@ import { JwtStrategy } from './jwt.strategy';
+ import { UsersModule } from '../users/users.module';
+ import { PassportModule } from '@nestjs/passport';
+ import { JwtModule } from '@nestjs/jwt';
+-import { jwtConstants } from './constants';
+-
+ 
+ @Module({
+   imports: [
+-    UsersModule, 
++    UsersModule,
+     PassportModule,
+     JwtModule.registerAsync({
+       useFactory: () => ({
+-      secret: jwtConstants.secret,
+-      signOptions: { expiresIn: '1d' },
+-      })
++        secret: process.env.SECRET,
++        signOptions: { expiresIn: '1d' },
++      }),
+     }),
+   ],
+   providers: [AuthService, LocalStrategy, JwtStrategy],
+-  exports: [AuthService]
++  exports: [AuthService],
+ })
+-
+-export class AuthModule {}
+\ No newline at end of file
++export class AuthModule {}
+diff --git a/src/auth/auth.service.ts b/src/auth/auth.service.ts
+index 5e869c6..78141e8 100644
+--- a/src/auth/auth.service.ts
++++ b/src/auth/auth.service.ts
+@@ -2,34 +2,53 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+ import { UsersService } from '../users/users.service';
+ import { JwtService } from '@nestjs/jwt';
+ import * as bcrypt from 'bcrypt';
+-
++interface IFilteredUser {
++  readonly _id: string;
++  readonly nickname: string;
++  readonly email: string;
++  readonly avatar: string;
++  readonly dollarBalance: number;
++  readonly lastBonusTime: number;
++}
+ @Injectable()
+ export class AuthService {
+-    constructor(
+-        private usersService: UsersService,
+-        private readonly jwtService: JwtService
+-    ) { }
++  constructor(
++    private usersService: UsersService,
++    private readonly jwtService: JwtService,
++  ) {}
+ 
+-    async validateUser(email: string, pass: string): Promise<any> {
+-        const user = await this.usersService.getOneByEmail(email);
+-        if (user) {
+-            // const hash = await bcrypt.hash(pass, +process.env.SALT);
+-            const isMatch = await bcrypt.compare(pass, user.password);
++  async validateUser(email: string, pass: string): Promise<IFilteredUser> {
++    const user = await this.usersService.getOneByEmail(email);
+ 
+-            if (isMatch) {
+-                const { password, ...result } = user;
+-                return result;
+-            }
+-            throw new HttpException('Password is incorrect', HttpStatus.UNAUTHORIZED);
+-        } else {
+-            throw new HttpException('Email is incorrect', HttpStatus.UNAUTHORIZED);
+-        }
+-    }
++    if (user) {
++      const isMatch = await bcrypt.compare(pass, user.password);
+ 
+-    async login(user: any) {
+-        const payload = { username: user.nickname, sub: user._id };
++      if (isMatch) {
+         return {
+-            access_token: this.jwtService.sign(payload),
++          _id: user._id.toString(),
++          nickname: user.nickname,
++          email: user.email,
++          avatar: user.avatar,
++          dollarBalance: user.dollarBalance,
++          lastBonusTime: user.lastBonusTime,
+         };
++      }
++
++      return null;
+     }
++
++    return null;
++  }
++
++  async login(user: any) {
++    const payload = {
++      username: user.nickname,
++      email: user.email,
++      sub: user._id,
++    };
++
++    return {
++      access_token: this.jwtService.sign(payload),
++    };
++  }
+ }
+diff --git a/src/auth/jwt.strategy.ts b/src/auth/jwt.strategy.ts
+index 24500b1..efdeecd 100644
+--- a/src/auth/jwt.strategy.ts
++++ b/src/auth/jwt.strategy.ts
+@@ -1,7 +1,6 @@
+ import { ExtractJwt, Strategy } from 'passport-jwt';
+ import { PassportStrategy } from '@nestjs/passport';
+ import { Injectable } from '@nestjs/common';
+-import { jwtConstants } from './constants';
+ 
+ @Injectable()
+ export class JwtStrategy extends PassportStrategy(Strategy) {
+@@ -9,11 +8,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
+     super({
+       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+       ignoreExpiration: false,
+-      secretOrKey: jwtConstants.secret,
++      secretOrKey: process.env.SECRET,
+     });
+   }
+ 
+   async validate(payload: any) {
+     return { userId: payload.sub, username: payload.username };
+   }
+-}
+\ No newline at end of file
++}
+diff --git a/src/auth/local.strategy.ts b/src/auth/local.strategy.ts
+index 3f4763a..3e75689 100644
+--- a/src/auth/local.strategy.ts
++++ b/src/auth/local.strategy.ts
+@@ -7,15 +7,17 @@ import { AuthService } from './auth.service';
+ export class LocalStrategy extends PassportStrategy(Strategy) {
+   constructor(private authService: AuthService) {
+     super({
+-      usernameField: 'email'
++      usernameField: 'email',
+     });
+   }
+ 
+   async validate(email: string, password: string): Promise<any> {
+     const user = await this.authService.validateUser(email, password);
++
+     if (!user) {
+       throw new UnauthorizedException();
+     }
++
+     return user;
+   }
+-}
+\ No newline at end of file
++}
+diff --git a/src/users/users.controller.ts b/src/users/users.controller.ts
+index 110b183..2e74f61 100644
+--- a/src/users/users.controller.ts
++++ b/src/users/users.controller.ts
+@@ -1,9 +1,19 @@
+-import { Controller, Get, Post, Param, Body, Patch, HttpCode, HttpStatus } from '@nestjs/common';
++import {
++  Controller,
++  Get,
++  Post,
++  Param,
++  Body,
++  Patch,
++  HttpCode,
++  HttpStatus,
++} from '@nestjs/common';
+ import { CreateUserDto } from './dto/create-user.dto';
+ import { UpdateUserBalanceDto } from './dto/update-user-balance.dto';
+ import { UpdateUserDto } from './dto/update-user.dto';
+ import { User } from './schemas/user.schema';
+ import { UsersService } from './users.service';
++// import { JwtService } from '@nestjs/jwt';
+ 
+ interface IFilteredUser {
+   readonly nickname: string;
+@@ -15,7 +25,10 @@ interface IFilteredUser {
+ 
+ @Controller('users')
+ export class UsersController {
+-  constructor(private readonly usersService: UsersService) { }
++  constructor(
++    private readonly usersService: UsersService,
++    // private readonly jwtService: JwtService,
++  ) {}
+ 
+   @Get()
+   getUsers(): Promise<User[]> {
+@@ -27,29 +40,28 @@ export class UsersController {
+     return this.usersService.getOne(id);
+   }
+ 
+-
+   @Get('get/:email')
+   getOneByEmail(@Param('email') email: string): Promise<User> {
+     return this.usersService.getOneByEmail(email);
+   }
+ 
+-
+   @Post()
+   @HttpCode(HttpStatus.CREATED)
+-  async createUser(@Body() userDto: CreateUserDto): Promise<IFilteredUser> {
++  async createUser(@Body() userDto: CreateUserDto): Promise<any> {
+     const newUser = await this.usersService.registrateUser(userDto);
+-    const filtered: IFilteredUser = {
++
++    return {
++      // access_token: this.jwtService.sign({
++      //   username: newUser.nickname,
++      //   email: newUser.email,
++      //   sub: newUser._id,
++      // }),
+       nickname: newUser.nickname,
+       email: newUser.email,
+       avatar: newUser.avatar,
+       dollarBalance: newUser.dollarBalance,
+       lastBonusTime: newUser.lastBonusTime,
+-    }
+-    //console.log(newUser)
+-    //const { password, ...filteredUser } = newUser
+-    //console.log(filteredUser)
+-
+-    return filtered;
++    };
+   }
+ 
+   @Patch(':id')
+diff --git a/src/users/users.service.ts b/src/users/users.service.ts
+index 8de3306..d887782 100644
+--- a/src/users/users.service.ts
++++ b/src/users/users.service.ts
+@@ -5,10 +5,9 @@ import { CreateUserDto } from './dto/create-user.dto';
+ import { User, UserDocument } from './schemas/user.schema';
+ import * as bcrypt from 'bcrypt';
+ 
+-
+ @Injectable()
+ export class UsersService {
+-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) { }
++  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+ 
+   async getAll(): Promise<User[]> {
+     return this.userModel.find().exec();
+@@ -19,24 +18,33 @@ export class UsersService {
+   }
+ 
+   //auth
+-  async getOneByEmail(email: string): Promise<User | undefined> {
++  // TODO: Update schema.
++  async getOneByEmail(email: string): Promise<User | undefined | any> {
+     return this.userModel.findOne({ email });
+   }
++  // TODO: Update schema.
++  async registrateUser(userDto: CreateUserDto): Promise<User | any> {
++    const { email, nickname, password } = userDto;
+ 
++    if (!email || !nickname || !password) {
++      throw new HttpException('User data is not valid.', HttpStatus.FORBIDDEN);
++    }
+ 
+-  async registrateUser(userDto: CreateUserDto): Promise<User> {
+-    const { email } = userDto;
+     const checkUser = await this.getOneByEmail(email);
+ 
+     if (checkUser) {
+-      throw new HttpException('User with this email adress is already exsists', HttpStatus.FORBIDDEN);
++      throw new HttpException(
++        'User with this email dares is already exists',
++        HttpStatus.FORBIDDEN,
++      );
+     } else {
+       const pass = userDto.password;
+       const hash = await bcrypt.hash(pass, +process.env.SALT);
+-      
++
+       const newUser = new this.userModel(userDto);
+       newUser.password = hash;
+       newUser.lastBonusTime = Date.now();
++
+       return await newUser.save();
+     }
+   }
