@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  UseFilters,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 // import { HttpCode } from '@nestjs/common';
 import { Model } from 'mongoose';
@@ -11,16 +16,27 @@ export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async getAll(): Promise<User[]> {
-    return this.userModel.find().exec();
+    const result = await this.userModel.find().exec();
+    if (!result) {
+      throw new NotFoundException();
+    }
+    return result;
   }
 
   async getOne(id: string): Promise<User> {
-    return this.userModel.findById(id);
+    const result = await this.userModel.findById(id).select(' -password');
+    if (!result) {
+      throw new BadRequestException('Bad id');
+    }
+    return result;
   }
 
   async getBalance(id: string): Promise<number> {
-    const { dollarBalance } = await this.userModel.findById(id);
-    return dollarBalance;
+    const result = await this.userModel.findById(id);
+    if (!result) {
+      throw new BadRequestException('Bad id');
+    }
+    return result.dollarBalance;
   }
 
   // example register
@@ -36,11 +52,21 @@ export class UsersService {
   }
 
   async updateUser({ id, userDto }): Promise<User> {
-    return this.userModel.findByIdAndUpdate(id, userDto, { new: true });
+    const result = await this.userModel.findByIdAndUpdate(id, userDto, {
+      new: true,
+    });
+    if (!result) {
+      throw new BadRequestException('Bad id');
+    }
+    return result;
   }
 
   async updateBalance({ id, userBalanceDto }): Promise<User> {
-    const { dollarBalance } = await this.userModel.findById(id);
+    const result = await this.userModel.findById(id);
+    if (!result) {
+      throw new BadRequestException('Bad id');
+    }
+    const { dollarBalance } = result;
     const newBalance = dollarBalance + userBalanceDto.dollarBalance;
 
     if (newBalance < 0) {
