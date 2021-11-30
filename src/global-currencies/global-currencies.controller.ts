@@ -49,15 +49,15 @@ export class GlobalCurrenciesController {
   @Get('changes')
   getChanges(@Query('start_date') startDate: string, @Query('end_date') endDate: string) {
     try {
-      const result = this.globalCurrenciesService.getChanges(BASE, SOURCE, startDate, endDate).pipe(
-        map(res => {
+      const result = this.globalCurrenciesService.getChanges(BASE, SOURCE, startDate, endDate)
+      .pipe(map(res => {
           let arr: Array<[String, CurrencyChangesDto]>
           arr = Object.entries(res.data.rates)
           return arr.map(([currName, {start_rate, end_rate}]): [String, CurrencyChangesDto] => {
-            let startUSDbased = 1 / start_rate
-            let endUSDbased = 1 / end_rate
-            let changeUSDbased = endUSDbased - startUSDbased
-            let change_pctUSDbased = Math.round((changeUSDbased / startUSDbased) * 10000) / 100
+            let startUSDbased = !!start_rate ? Math.round(1 / start_rate * 10000) / 10000 : 0
+            let endUSDbased = !!end_rate ? Math.round(1 / end_rate * 10000) / 10000 : 0
+            let changeUSDbased = Math.round((endUSDbased - startUSDbased) * 10000) / 10000
+            let change_pctUSDbased = Math.round((changeUSDbased / startUSDbased) * 100) / 100
             
             let ratesObj: CurrencyChangesDto = {
               "start_rate": startUSDbased,
@@ -66,7 +66,7 @@ export class GlobalCurrenciesController {
               "change_pct": change_pctUSDbased
             }
             return [currName, ratesObj]
-          }).filter(([_, { end_rate, change }]) => isFinite(end_rate) && isFinite(change))
+          }).filter(([, { end_rate, start_rate, change }]) => !!end_rate && !!start_rate && !!change)
         })       
       )
       return result
