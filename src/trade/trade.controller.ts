@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Post,
   Query,
@@ -16,7 +17,7 @@ export class TradeController {
   ) {}
 
   @Post('buy')
-  buyCurrency(@Query() query: BuyCurrencyDto): Observable<any> {
-    return this.tradeService.buyCurrency(query);
+  buyCurrency(@Body() body: BuyCurrencyDto): Observable<any> {
+    return this.tradeService.buyCurrency(body);
   }
 }
