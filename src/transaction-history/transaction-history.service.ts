@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import TransactionInterface from './interfaces/transaction.interface';
-import { TransactionDocument } from '../user-currencies/schemas/transaction.schema';
+import { TransactionDocument } from '../transactions/schemas/transaction.schema'
 import DocumentToFind from './interfaces/documentToFind.interface';
 import GetTransactionHistoryDto from './dto/get-transaction-history.dto';
 
