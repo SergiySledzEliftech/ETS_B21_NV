@@ -1,7 +1,11 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Request } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { User, UserDocument } from 'src/users/schemas/user.schema';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
 interface IFilteredUser {
   readonly _id: string;
   readonly nickname: string;
@@ -12,13 +16,47 @@ interface IFilteredUser {
 }
 @Injectable()
 export class AuthService {
+  @InjectModel(User.name) private userModel: Model<UserDocument>
   constructor(
     private usersService: UsersService,
     private readonly jwtService: JwtService,
   ) {}
 
+// 
+// TODO: Update schema.
+async getOneByEmail(email: string): Promise<User | undefined | any> {
+  return this.userModel.findOne({ email });
+}
+// TODO: Update schema.
+async registerUser(userDto: CreateUserDto): Promise<User | any> {
+  const { email, nickname, password } = userDto;
+
+  if (!email || !nickname || !password) {
+    throw new HttpException('User data is not valid.', HttpStatus.FORBIDDEN);
+  }
+
+  const checkUser = await this.getOneByEmail(email);
+
+  if (checkUser) {
+    throw new HttpException(
+      'User with this email dares is already exists',
+      HttpStatus.FORBIDDEN,
+    );
+  } else {
+    const pass = userDto.password;
+    const hash = await bcrypt.hash(pass, +process.env.SALT);
+
+    const newUser = new this.userModel(userDto);
+    newUser.password = hash;
+    newUser.lastBonusTime = Date.now();
+
+    return await newUser.save();
+  }
+}
+// 
+
   async validateUser(email: string, pass: string): Promise<IFilteredUser> {
-    const user = await this.usersService.getOneByEmail(email);
+    const user = await this.getOneByEmail(email);
 
     if (user) {
       const isMatch = await bcrypt.compare(pass, user.password);
@@ -41,6 +79,7 @@ export class AuthService {
   }
 
   async login(user: any) {
+    
     const payload = {
       username: user.nickname,
       email: user.email,

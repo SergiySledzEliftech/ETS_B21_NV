@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserCurrenciesController } from './user-currencies/user-currencies.controller';
+import { Auth } from './auth/auth.controller';
 
 
 @Module({
@@ -18,7 +19,7 @@ import { UserCurrenciesController } from './user-currencies/user-currencies.cont
     UsersModule,
     AuthModule,
   ],
-  controllers: [AppController, UserCurrenciesController],
+  controllers: [AppController, UserCurrenciesController, Auth],
   providers: [AppService],
 })
 export class AppModule {}

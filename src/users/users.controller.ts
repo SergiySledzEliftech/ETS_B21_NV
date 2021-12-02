@@ -40,29 +40,12 @@ export class UsersController {
     return this.usersService.getOne(id);
   }
 
-  @Get('get/:email')
-  getOneByEmail(@Param('email') email: string): Promise<User> {
-    return this.usersService.getOneByEmail(email);
-  }
+  // @Get('get/:email')
+  // getOneByEmail(@Param('email') email: string): Promise<User> {
+  //   return this.usersService.getOneByEmail(email);
+  // }
 
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  async createUser(@Body() userDto: CreateUserDto): Promise<any> {
-    const newUser = await this.usersService.registrateUser(userDto);
 
-    return {
-      // access_token: this.jwtService.sign({
-      //   username: newUser.nickname,
-      //   email: newUser.email,
-      //   sub: newUser._id,
-      // }),
-      nickname: newUser.nickname,
-      email: newUser.email,
-      avatar: newUser.avatar,
-      dollarBalance: newUser.dollarBalance,
-      lastBonusTime: newUser.lastBonusTime,
-    };
-  }
 
   @Patch(':id')
   updateUser(
