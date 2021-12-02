@@ -22,6 +22,9 @@ export class User {
 
   @Prop({ required: true })
   lastBonusTime: number;
+
+  @Prop({ default: '' })
+  access_token: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
