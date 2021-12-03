@@ -63,6 +63,7 @@ export class TradeService {
         return forkJoin(updateObservables);
       },
     )).pipe(mergeMap(result => {
+      console.log(result);
       if (typeof result === 'string') return of({ result });
       return of({ result: 'success' });
     }));
@@ -130,6 +131,7 @@ export class TradeService {
       currentDate,
       rate,
       spent,
+      currencyName,
     } = dto;
     console.log(spent);
     const balanceUpdateObservable = this.httpService
@@ -144,6 +146,8 @@ export class TradeService {
       date: currentDate,
       rate,
       spent,
+      userId,
+      currencyName,
     })
       .pipe(map(response => response.data));
     return [
