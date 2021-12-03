@@ -7,7 +7,9 @@ import {
   Patch,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserBalanceDto } from './dto/update-user-balance.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -34,7 +36,8 @@ export class UsersController {
   getUsers(): Promise<User[]> {
     return this.usersService.getAll();
   }
-
+  
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   getOne(@Param('id') id: string): Promise<User> {
     return this.usersService.getOne(id);

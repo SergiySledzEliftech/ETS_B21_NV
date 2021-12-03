@@ -47,16 +47,16 @@ async registerUser(userDto: CreateUserDto): Promise<User> {
     const hash = await bcrypt.hash(pass, +process.env.SALT);
 
     const newUser = new this.userModel(userDto);
+
+    const payload = { email };
+    const access_token = this.jwtService.sign(payload)
+
     newUser.password = hash;
     newUser.lastBonusTime = Date.now();
+    newUser.access_token = access_token;
 
     const result =  await newUser.save();
-    const payload = {
-      username: result.nickname,
-      email: result.email,
-      sub: result._id,
-    };
-    result.access_token = this.jwtService.sign(payload)
+
     result.password = ''
     return result
   
@@ -88,15 +88,18 @@ async registerUser(userDto: CreateUserDto): Promise<User> {
   }
 
   async login(user: any) {
-    
+    console.log(user, 'user');
+    const { email } = user
     const payload = {
-      username: user.nickname,
-      email: user.email,
-      sub: user._id,
+      email: user.email
     };
+    const access_token = this.jwtService.sign(payload)
+    const result = await this.getOneByEmail(email)
+    result.access_token = access_token
 
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
-  }
+    const updateUser = await this.userModel.findOneAndUpdate({email: result.email}, result, {new: true})
+    updateUser.password = ''
+    
+    return updateUser
+}
 }
