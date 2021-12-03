@@ -32,11 +32,16 @@ export class UserCurrenciesService {
     return newUserCurrency.save();
   }
 
-  async removeCurrency(
+  async removeCurrencyByName(
     userId: string, 
     name: string
   ): Promise<Currency> {
     return this.currencyModel.findOneAndRemove({ name, userId });
+  }
+
+  async removeCurrencyById(id: string): Promise<Currency> {
+    console.log(id);
+    return this.currencyModel.findByIdAndRemove(id);
   }
 
   async updateCurrency(updateDto: UpdateCurrencyDto): Promise<Currency> {

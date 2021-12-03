@@ -29,4 +29,8 @@ export class TransactionsService {
     const newUserTransaction = new this.transactionModel(transactionDto);
     return newUserTransaction.save();
   }
+
+  async deleteTransactionById(id: string): Promise<Transaction> {
+    return this.transactionModel.findByIdAndDelete(id);
+  }
 }
