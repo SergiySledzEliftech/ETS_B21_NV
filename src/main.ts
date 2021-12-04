@@ -9,7 +9,6 @@ async function bootstrap() {
     new ValidationPipe({
       transform: true,
       enableDebugMessages: true,
-      whitelist: true,
       disableErrorMessages: 
         process.env.NODE_ENV === 'PRODUCTION' ? true : false,
     })
