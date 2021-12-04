@@ -20,6 +20,7 @@ export class TransactionHistoryService {
 
     const documentToFind = {};
     if (currency !== 'ALL') documentToFind['currencyName'] = currency;
+    else documentToFind['currencyName'] = new RegExp('.*');
     if (userId) documentToFind['userId'] = userId;
     if (dateRange) {
       documentToFind['date'] = {
@@ -48,11 +49,11 @@ export class TransactionHistoryService {
   ): Promise<TransactionInterface[]> {
     const transactions = await this.transactionModel
       .find(documentToFind)
+      .sort('-date')
       .limit(limitNum)
       .skip((pageNum - 1) * limitNum)
       .select('-_id -userId -__v')
       .exec();
-
     return transactions;
   }
 }

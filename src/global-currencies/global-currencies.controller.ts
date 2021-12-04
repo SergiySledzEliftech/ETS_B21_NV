@@ -5,6 +5,8 @@ import { Observable, map } from 'rxjs';
 
 import { ConvertCurrencyDto } from './dto/convert-currency.dto';
 import { CurrencyChangesDto } from './dto/currency-changes.dto';
+import { GetRateByDate } from './dto/get-rate-by-date.dto';
+import { query } from 'express';
 
 const BASE = 'USD';
 const SOURCE = 'crypto';
@@ -31,9 +33,10 @@ export class GlobalCurrenciesController {
   }
 
   @Get('history')
-  getHistory(@Query('date') date: string): Observable<AxiosResponse<any>> {
+  getHistory(@Query() query: GetRateByDate): Observable<AxiosResponse<any>> {
+    const { date, currency } = query;
     return this.globalCurrenciesService
-      .getHistory(date, BASE, SOURCE)
+      .getHistory(date, BASE, currency, SOURCE)
       .pipe(map(res => res.data.rates));
   }
 

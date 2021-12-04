@@ -38,12 +38,14 @@ export class GlobalCurrenciesService {
   getHistory(
     date: string,
     base: string,
-    source: string
+    currency: string,
+    source: string,
   ): Observable<AxiosResponse<any>> {
     return this.httpService.get(EXCHANGERATE_API + date, {
       params: {
         base,
         source,
+        symbols: currency,
       }
     });
   }
