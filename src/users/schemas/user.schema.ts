@@ -15,7 +15,7 @@ export class User {
   lastName: string;
 
   @Prop({ default: '' })
-  number: number;
+  number: string;
 
   @Prop({ default: '' })
   facebook: string;
