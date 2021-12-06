@@ -23,7 +23,6 @@ export class Auth {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Request() req) {
-    console.log(req.user.access_token);
     return this.authService.login(req.body);
   }
 

@@ -6,15 +6,8 @@ import { User, UserDocument } from 'src/users/schemas/user.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { IFilteredUser } from 'src/users/interfaces/filteredUser.interface';
 
-interface IFilteredUser {
-  //  _id: ObjectId,
-  readonly nickname: string;
-  readonly email: string;
-  readonly avatar: string;
-  readonly dollarBalance: number;
-  readonly lastBonusTime: number;
-}
 @Injectable()
 export class AuthService {
   @InjectModel(User.name) private userModel: Model<UserDocument>;
@@ -23,13 +16,11 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  //
-  // TODO: Update schema.
   async getOneByEmail(email: string): Promise<User | undefined> {
     return this.userModel.findOne({ email });
   }
-  // TODO: Update schema.
-  async registerUser(userDto: CreateUserDto): Promise<User> {
+
+  async registerUser(userDto: CreateUserDto): Promise<IFilteredUser> {
     const { email, nickname, password } = userDto;
 
     if (!email || !nickname || !password) {
@@ -59,8 +50,8 @@ export class AuthService {
       const filtU = await this.userModel.findByIdAndUpdate(id, saveUser, {
         new: true,
       });
-      filtU.password = '';
-      return filtU;
+
+      return this.filterUserData(filtU);
     }
   }
 
@@ -70,8 +61,7 @@ export class AuthService {
     if (user) {
       const isMatch = await bcrypt.compare(pass, user.password);
       if (isMatch) {
-        user.password = '';
-        return user;
+        return this.filterUserData(user);
       }
       return null;
     }
@@ -80,11 +70,9 @@ export class AuthService {
 
   async login(user: any): Promise<CreateUserDto> {
     const { email } = user;
-
     const result: CreateUserDto = await this.getOneByEmail(email);
-    console.log(result);
 
-    const {id} = result;
+    const { id } = result;
     const payload = { id };
     const access_token = this.jwtService.sign(payload);
     result.access_token = access_token;
@@ -92,8 +80,8 @@ export class AuthService {
     const filteredUser = await this.userModel.findByIdAndUpdate(id, result, {
       new: true,
     });
-    filteredUser.password = '';
-    return filteredUser;
+
+    return this.filterUserData(filteredUser);
   }
 
   async logout(id): Promise<any> {
@@ -102,5 +90,17 @@ export class AuthService {
       { access_token: '' },
       { new: true },
     );
+  }
+
+  filterUserData(user) {
+    return {
+      access_token: user.access_token,
+      _id: user._id,
+      nickname: user.nickname,
+      email: user.email,
+      avatar: user.avatar,
+      dollarBalance: user.dollarBalance,
+      lastBonusTime: user.lastBonusTime,
+    };
   }
 }

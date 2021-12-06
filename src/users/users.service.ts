@@ -5,7 +5,6 @@ import {
   UseFilters,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-// import { HttpCode } from '@nestjs/common';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -24,7 +23,6 @@ export class UsersService {
   }
 
   async getOne(id: string): Promise<User> {
-
     const result = await this.userModel.findById(id).select(' -password');
     if (!result) {
       throw new BadRequestException('Bad id');
@@ -33,7 +31,6 @@ export class UsersService {
   }
 
   async getBalance(id: string): Promise<number> {
-
     const result = await this.userModel.findById(id);
     if (!result) {
       throw new BadRequestException('Bad id');
@@ -41,20 +38,8 @@ export class UsersService {
     return result.dollarBalance;
   }
 
-  // example register
-  async creatUser(userDto: CreateUserDto): Promise<User> {
-    const saltRounds = 10;
-    const password = userDto.password;
-    const hash = await bcrypt.hash(password, saltRounds);
-
-    const newUser = new this.userModel(userDto);
-    newUser.password = hash;
-    newUser.lastBonusTime = Date.now();
-    return newUser.save();
-  }
-
   async updateUser({ id, userDto }): Promise<User> {
-    if(id.length !== 24) {
+    if (id.length !== 24) {
       throw new BadRequestException('Bad length id');
     }
     const result = await this.userModel.findByIdAndUpdate(id, userDto, {
@@ -67,7 +52,7 @@ export class UsersService {
   }
 
   async updateBalance({ id, userBalanceDto }): Promise<User> {
-    if(id.length !== 24) {
+    if (id.length !== 24) {
       throw new BadRequestException('Bad length id');
     }
     const result = await this.userModel.findById(id);

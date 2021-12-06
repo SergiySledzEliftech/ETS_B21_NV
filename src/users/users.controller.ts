@@ -16,7 +16,6 @@ import { UpdateUserBalanceDto } from './dto/update-user-balance.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './schemas/user.schema';
 import { UsersService } from './users.service';
-// import { JwtService } from '@nestjs/jwt';
 
 interface IFilteredUser {
   readonly nickname: string;
@@ -28,32 +27,18 @@ interface IFilteredUser {
 
 @Controller('users')
 export class UsersController {
-  constructor(
-    private readonly usersService: UsersService,
-    // private readonly jwtService: JwtService,
-  ) {}
+  constructor(private readonly usersService: UsersService) {}
 
   @Get()
   getUsers(): Promise<User[]> {
     return this.usersService.getAll();
   }
 
-  
   @UseGuards(JwtAuthGuard)
   @Get('/getOne')
   getOne(@Request() { user }): Promise<User> {
-    console.log(user.id, 'user id');
-    
-    return this.usersService.getOne(user.id);
-    
+    return user;
   }
-
-  // @Get('get/:email')
-  // getOneByEmail(@Param('email') email: string): Promise<User> {
-  //   return this.usersService.getOneByEmail(email);
-  // }
-
-
 
   @Patch(':id')
   updateUser(
