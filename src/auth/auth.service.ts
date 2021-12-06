@@ -56,8 +56,6 @@ async registerUser(userDto: CreateUserDto): Promise<User> {
     const payload = { id: saveUser.id };
     const access_token = this.jwtService.sign(payload)
     saveUser.access_token = access_token;
-    
-    
 
     return saveUser
   
@@ -83,7 +81,7 @@ async registerUser(userDto: CreateUserDto): Promise<User> {
   }
 
   async login(user: any): Promise<CreateUserDto> {
-    console.log(user, 'user');
+    
     const { email } = user    
     
     const result: CreateUserDto = await this.getOneByEmail(email)
@@ -95,5 +93,9 @@ async registerUser(userDto: CreateUserDto): Promise<User> {
     result.password = ''
     
     return result
+}
+
+async logout(id): Promise<any> {
+  return this.userModel.findByIdAndUpdate(id, {access_token: ''}, { new: true });
 }
 }
