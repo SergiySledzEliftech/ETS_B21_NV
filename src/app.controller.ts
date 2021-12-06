@@ -7,17 +7,20 @@ import { LocalAuthGuard } from './auth/local-auth.quard';
 export class AppController {
   constructor(private authService: AuthService) { }
 
-  @UseGuards(LocalAuthGuard)
-  @Post('users/login')
-  async login(@Request() req) {
-    return this.authService.login(req.user);
-  }
+  // @UseGuards(LocalAuthGuard)
+  // @Post('users/login')
+  // async login(@Request() req) {
+  //   return this.authService.login(req.user);
+  // }
 
   @UseGuards(JwtAuthGuard)
-  @Post('users/profile')
+  @Get('users/profile')
   getProfile(@Request() req) {
-
+    // const [bearer, token] = req.headers.authorization.split(' ')
+    // console.log(bearer, token);
+    // console.log(req.user);
+    
     // User is existed
-    return req.user.userId;
+    return req.user;
   }
 }

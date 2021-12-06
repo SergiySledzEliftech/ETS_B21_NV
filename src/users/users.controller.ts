@@ -7,7 +7,10 @@ import {
   Patch,
   HttpCode,
   HttpStatus,
+  UseGuards,
+  Request,
 } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserBalanceDto } from './dto/update-user-balance.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -35,34 +38,22 @@ export class UsersController {
     return this.usersService.getAll();
   }
 
-  @Get(':id')
-  getOne(@Param('id') id: string): Promise<User> {
-    return this.usersService.getOne(id);
+  
+  @UseGuards(JwtAuthGuard)
+  @Get('/getOne')
+  getOne(@Request() { user }): Promise<User> {
+    console.log(user.id, 'user id');
+    
+    return this.usersService.getOne(user.id);
+    
   }
 
-  @Get('get/:email')
-  getOneByEmail(@Param('email') email: string): Promise<User> {
-    return this.usersService.getOneByEmail(email);
-  }
+  // @Get('get/:email')
+  // getOneByEmail(@Param('email') email: string): Promise<User> {
+  //   return this.usersService.getOneByEmail(email);
+  // }
 
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  async createUser(@Body() userDto: CreateUserDto): Promise<any> {
-    const newUser = await this.usersService.registrateUser(userDto);
 
-    return {
-      // access_token: this.jwtService.sign({
-      //   username: newUser.nickname,
-      //   email: newUser.email,
-      //   sub: newUser._id,
-      // }),
-      nickname: newUser.nickname,
-      email: newUser.email,
-      avatar: newUser.avatar,
-      dollarBalance: newUser.dollarBalance,
-      lastBonusTime: newUser.lastBonusTime,
-    };
-  }
 
   @Patch(':id')
   updateUser(
