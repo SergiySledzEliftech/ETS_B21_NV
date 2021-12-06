@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserCurrenciesController } from './user-currencies/user-currencies.controller';
+import { Auth } from './auth/auth.controller';
 
 
 @Module({
@@ -16,9 +17,9 @@ import { UserCurrenciesController } from './user-currencies/user-currencies.cont
       `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.v3bg0.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`,
     ),
     UsersModule,
-    AuthModule
+    AuthModule,
   ],
-  controllers: [AppController, UserCurrenciesController],
+  controllers: [AppController, UserCurrenciesController, Auth],
   providers: [AppService],
 })
 export class AppModule {}

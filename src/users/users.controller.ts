@@ -1,36 +1,59 @@
-import { Controller, Get, Post, Param, Body, Patch, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Param,
+  Body,
+  Patch,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserBalanceDto } from './dto/update-user-balance.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './schemas/user.schema';
 import { UsersService } from './users.service';
+// import { JwtService } from '@nestjs/jwt';
+
+interface IFilteredUser {
+  readonly nickname: string;
+  readonly email: string;
+  readonly avatar: string;
+  readonly dollarBalance: number;
+  readonly lastBonusTime: number;
+}
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(
+    private readonly usersService: UsersService,
+    // private readonly jwtService: JwtService,
+  ) {}
 
   @Get()
   getUsers(): Promise<User[]> {
     return this.usersService.getAll();
   }
 
-  @Get(':id')
-  getOne(@Param('id') id: string): Promise<User> {
-    return this.usersService.getOne(id);
+  
+  @UseGuards(JwtAuthGuard)
+  @Get('/getOne')
+  getOne(@Request() { user }): Promise<User> {
+    console.log(user.id, 'user id');
+    
+    return this.usersService.getOne(user.id);
+    
   }
 
-  
-  @Get('get/:email')
-  getOneByEmail(@Param('email') email: string): Promise<User> {
-    return this.usersService.getOneByEmail(email);
-  }
-  
-  
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  createUser(@Body() userDto: CreateUserDto): Promise<User> {
-    return this.usersService.registrateUser(userDto);
-  }
+  // @Get('get/:email')
+  // getOneByEmail(@Param('email') email: string): Promise<User> {
+  //   return this.usersService.getOneByEmail(email);
+  // }
+
+
 
   @Patch(':id')
   updateUser(
