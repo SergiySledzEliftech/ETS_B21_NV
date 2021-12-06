@@ -24,7 +24,6 @@ export class UsersService {
   }
 
   async getOne(id: string): Promise<User> {
-
     const result = await this.userModel.findById(id).select(' -password');
     if (!result) {
       throw new BadRequestException('Bad id');
@@ -33,7 +32,6 @@ export class UsersService {
   }
 
   async getBalance(id: string): Promise<number> {
-
     const result = await this.userModel.findById(id);
     if (!result) {
       throw new BadRequestException('Bad id');
@@ -54,9 +52,6 @@ export class UsersService {
   }
 
   async updateUser({ id, userDto }): Promise<User> {
-    if(id.length !== 24) {
-      throw new BadRequestException('Bad length id');
-    }
     const result = await this.userModel.findByIdAndUpdate(id, userDto, {
       new: true,
     });
@@ -67,9 +62,6 @@ export class UsersService {
   }
 
   async updateBalance({ id, userBalanceDto }): Promise<User> {
-    if(id.length !== 24) {
-      throw new BadRequestException('Bad length id');
-    }
     const result = await this.userModel.findById(id);
     if (!result) {
       throw new BadRequestException('Bad id');

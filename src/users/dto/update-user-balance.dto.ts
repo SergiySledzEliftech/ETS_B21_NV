@@ -1,4 +1,9 @@
+import { IsNumber } from 'class-validator'
+
 export class UpdateUserBalanceDto {
+  @IsNumber()
   readonly dollarBalance: number;
-  readonly lastBonusTime: string;
+
+  @IsNumber()
+  readonly lastBonusTime: number;
 }

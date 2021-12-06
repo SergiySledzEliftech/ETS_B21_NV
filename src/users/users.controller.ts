@@ -1,61 +1,45 @@
 import {
   Controller,
   Get,
-  Post,
+  Put,
   Param,
   Body,
-  Patch,
   HttpCode,
   HttpStatus,
-  UseGuards,
-  Request,
+  Post,
 } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserBalanceDto } from './dto/update-user-balance.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './schemas/user.schema';
 import { UsersService } from './users.service';
-// import { JwtService } from '@nestjs/jwt';
-
-interface IFilteredUser {
-  readonly nickname: string;
-  readonly email: string;
-  readonly avatar: string;
-  readonly dollarBalance: number;
-  readonly lastBonusTime: number;
-}
 
 @Controller('users')
 export class UsersController {
-  constructor(
-    private readonly usersService: UsersService,
-    // private readonly jwtService: JwtService,
-  ) {}
+  constructor(private readonly usersService: UsersService) {}
 
   @Get()
   getUsers(): Promise<User[]> {
     return this.usersService.getAll();
   }
 
-  
-  @UseGuards(JwtAuthGuard)
-  @Get('/getOne')
-  getOne(@Request() { user }): Promise<User> {
-    console.log(user.id, 'user id');
-    
-    return this.usersService.getOne(user.id);
-    
+  @Get(':id')
+  getOne(@Param('id') id: string): Promise<User> {
+    return this.usersService.getOne(id);
   }
 
-  // @Get('get/:email')
-  // getOneByEmail(@Param('email') email: string): Promise<User> {
-  //   return this.usersService.getOneByEmail(email);
-  // }
+  @Get('/balance/:id')
+  getBalance(@Param('id') id: string): Promise<number> {
+    return this.usersService.getBalance(id);
+  }
 
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  createUser(@Body() userDto: CreateUserDto): Promise<User> {
+    return this.usersService.creatUser(userDto);
+  }
 
-
-  @Patch(':id')
+  @Put(':id')
   updateUser(
     @Param('id') id: string,
     @Body() userDto: UpdateUserDto,
@@ -63,7 +47,7 @@ export class UsersController {
     return this.usersService.updateUser({ id, userDto });
   }
 
-  @Patch('balance/:id')
+  @Put('balance/:id')
   updateBalance(
     @Param('id') id: string,
     @Body() userBalanceDto: UpdateUserBalanceDto,
