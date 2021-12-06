@@ -6,7 +6,7 @@ export class CreateUserDto {
 //   todo
   id?: ObjectId
   
-  @IsString()
+  // @IsString()
   access_token?: string
   
   @IsString()
@@ -15,16 +15,15 @@ export class CreateUserDto {
   @IsEmail()
   readonly email: string;
 
-
   @IsString()
   password?: string;
 
-  @IsString()
+  // @IsString()
   readonly avatar: string;
 
-  @IsNumber()
+  // @IsNumber()
   readonly dollarBalance: number;
 
-  @IsNumber()
+  // @IsNumber()
   readonly lastBonusTime: number;
 }
