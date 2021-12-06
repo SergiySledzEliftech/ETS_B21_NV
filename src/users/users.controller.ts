@@ -8,6 +8,7 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -36,11 +37,15 @@ export class UsersController {
   getUsers(): Promise<User[]> {
     return this.usersService.getAll();
   }
+
   
   @UseGuards(JwtAuthGuard)
-  @Get(':id')
-  getOne(@Param('id') id: string): Promise<User> {
-    return this.usersService.getOne(id);
+  @Get('/getOne')
+  getOne(@Request() { user }): Promise<User> {
+    console.log(user.id, 'user id');
+    
+    return this.usersService.getOne(user.id);
+    
   }
 
   // @Get('get/:email')
