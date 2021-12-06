@@ -1,4 +1,4 @@
-export class PatchCurrencyQueryDto {
+export class DeleteCurrencyByNameDto {
   readonly userId: string;
   readonly name: string;
 }

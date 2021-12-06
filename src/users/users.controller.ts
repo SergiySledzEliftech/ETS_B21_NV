@@ -1,14 +1,14 @@
 import {
   Controller,
   Get,
-  Post,
+  Put,
   Param,
   Body,
-  Patch,
   HttpCode,
   HttpStatus,
   UseGuards,
   Request,
+  Post,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -39,8 +39,13 @@ export class UsersController {
   getOne(@Request() { user }): Promise<User> {
     return user;
   }
+  
+  @Get('/balance/:id')
+  getBalance(@Param('id') id: string): Promise<number> {
+    return this.usersService.getBalance(id);
+  }
 
-  @Patch(':id')
+  @Put(':id')
   updateUser(
     @Param('id') id: string,
     @Body() userDto: UpdateUserDto,
@@ -48,7 +53,7 @@ export class UsersController {
     return this.usersService.updateUser({ id, userDto });
   }
 
-  @Patch('balance/:id')
+  @Put('balance/:id')
   updateBalance(
     @Param('id') id: string,
     @Body() userBalanceDto: UpdateUserBalanceDto,

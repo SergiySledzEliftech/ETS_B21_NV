@@ -8,7 +8,28 @@ export class User {
   @Prop({ required: true })
   nickname: string;
 
-  @Prop({ required: false })
+  @Prop({ default: '' })
+  firstName: string;
+
+  @Prop({ default: '' })
+  lastName: string;
+
+  @Prop({ default: '' })
+  number: string;
+
+  @Prop({ default: '' })
+  facebook: string;
+
+  @Prop({ default: '' })
+  linkedin: string;
+
+  @Prop({ default: '' })
+  twitter: string;
+
+  @Prop({ default: '' })
+  instagram: string;
+
+  @Prop({ required: false }) //true
   password: string;
 
   @Prop({ required: true })
