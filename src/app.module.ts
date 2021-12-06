@@ -1,13 +1,9 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
-import { UsersModule } from './users/users.module';
-import { AuthModule } from './auth/auth.module';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { Auth } from './auth/auth.controller';
-
 import { TransactionHistoryModule } from './transaction-history/transaction-history.module';
 import { UsersModule } from './users/users.module';
 import { TradeModule } from './trade/trade.module';
@@ -24,18 +20,17 @@ import { TransactionsModule } from './transactions/transactions.module';
     ),
     HttpModule,
     UsersModule,
-    AuthModule,
-  ],
-  controllers: [AppController, UserCurrenciesController, Auth,
     TransactionHistoryModule,
     GlobalCurrenciesModule,
     UserCurrenciesModule,
     TradeModule,
     TransactionsModule
   ],
+  controllers: [
+    AppController
+  ],
   providers: [
     AppService
   ],
-
 })
 export class AppModule {}

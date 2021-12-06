@@ -1,7 +1,7 @@
-import { Prop, SchemaFactory, Schema } from '@nestjs/mongoose';
-import * as mongoose from 'mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 
-export type UserDocument = User & mongoose.Document;
+export type UserDocument = User & Document;
 
 @Schema({ versionKey: false, timestamps: true })
 export class User {
@@ -29,7 +29,7 @@ export class User {
   @Prop({ default: '' })
   instagram: string;
 
-  @Prop({ required: false }) //true
+  @Prop({ required: true })
   password: string;
 
   @Prop({ required: true })
@@ -43,10 +43,6 @@ export class User {
 
   @Prop({ required: true })
   lastBonusTime: number;
-
-  @Prop({ default: '' })
-  access_token: string;
-  
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
