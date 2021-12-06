@@ -39,18 +39,6 @@ export class UsersService {
     return result.dollarBalance;
   }
 
-  // example register
-  async creatUser(userDto: CreateUserDto): Promise<User> {
-    const saltRounds = 10;
-    const password = userDto.password;
-    const hash = await bcrypt.hash(password, saltRounds);
-
-    const newUser = new this.userModel(userDto);
-    newUser.password = hash;
-    newUser.lastBonusTime = Date.now();
-    return newUser.save();
-  }
-
   async updateUser({ id, userDto }): Promise<User> {
     const result = await this.userModel.findByIdAndUpdate(id, userDto, {
       new: true,
