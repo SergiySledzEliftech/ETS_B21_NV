@@ -1,6 +1,15 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 export class CurrencyChangesDto {
-    readonly start_rate: number;
-    readonly end_rate: number;
-    readonly change: number;
-    readonly change_pct: number;
+  @ApiProperty()
+  readonly start_rate: number;
+  
+  @ApiProperty()
+  readonly end_rate: number;
+  
+  @ApiProperty()
+  readonly change: number;
+  
+  @ApiProperty()
+  readonly change_pct: number;
   }
