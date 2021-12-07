@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import TransactionInterface from './interfaces/transaction.interface';
-import { TransactionDocument } from '../transactions/schemas/transaction.schema'
+import { TransactionDocument } from '../transactions/schemas/transaction.schema';
 import DocumentToFind from './interfaces/documentToFind.interface';
 import GetTransactionHistoryDto from './dto/get-transaction-history.dto';
 
@@ -15,13 +15,14 @@ export class TransactionHistoryService {
 
   createDocumentToFind(
     getTransactionHistoryDto: GetTransactionHistoryDto,
+    userId: string,
   ): DocumentToFind {
-    const { currency = 'ALL', userId, dateRange } = getTransactionHistoryDto;
+    const { currency = 'ALL', dateRange } = getTransactionHistoryDto;
 
     const documentToFind: DocumentToFind = {};
     if (currency !== 'ALL') documentToFind.currencyName = currency;
     else documentToFind.currencyName = new RegExp('.*');
-    if (userId) documentToFind.userId = userId;
+    documentToFind.userId = userId;
     if (dateRange) {
       documentToFind.date = {
         $gte: dateRange.split('#')[0],
