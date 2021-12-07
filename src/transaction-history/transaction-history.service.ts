@@ -18,12 +18,12 @@ export class TransactionHistoryService {
   ): DocumentToFind {
     const { currency = 'ALL', userId, dateRange } = getTransactionHistoryDto;
 
-    const documentToFind = {};
-    if (currency !== 'ALL') documentToFind['currencyName'] = currency;
-    else documentToFind['currencyName'] = new RegExp('.*');
-    if (userId) documentToFind['userId'] = userId;
+    const documentToFind: DocumentToFind = {};
+    if (currency !== 'ALL') documentToFind.currencyName = currency;
+    else documentToFind.currencyName = new RegExp('.*');
+    if (userId) documentToFind.userId = userId;
     if (dateRange) {
-      documentToFind['date'] = {
+      documentToFind.date = {
         $gte: dateRange.split('#')[0],
         $lt: dateRange.split('#')[1],
       };

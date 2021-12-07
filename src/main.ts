@@ -24,6 +24,6 @@ async function bootstrap() {
         process.env.NODE_ENV === 'PRODUCTION' ? true : false,
     })
   )
-  await app.listen(4000);
+  await app.listen(process.env.PORT || 4000);
 }
 bootstrap();

@@ -1,8 +1,5 @@
 export default class DocumentToFind {
   date?: Record<string, string>;
-  currencyName?: string;
+  currencyName?: string | RegExp;
   userId?: string;
-  amount?: number;
-  rate?: number;
-  spent?: number;
 }

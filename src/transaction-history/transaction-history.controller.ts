@@ -13,7 +13,7 @@ export class TransactionHistoryController {
   async getTransactionHistory(
     @Query() getTransactionHistoryDto: GetTransactionHistoryDto,
   ): Promise<ReturnTransactionHistoryDto> {
-    const { limit, page } = getTransactionHistoryDto;
+    const { limit = '10', page = '1' } = getTransactionHistoryDto;
     const limitNum = +limit;
     const pageNum = +page;
 
