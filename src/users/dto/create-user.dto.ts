@@ -9,7 +9,6 @@ export class CreateUserDto {
   id?: ObjectId
   
   // @IsString()
-  @ApiProperty()
   access_token?: string
   
   @IsString()
@@ -25,14 +24,11 @@ export class CreateUserDto {
   password?: string;
 
   // @IsString()
-  @ApiProperty()
   readonly avatar: string;
 
   // @IsNumber()
-  @ApiProperty()
   readonly dollarBalance: number;
 
   // @IsNumber()
-  @ApiProperty()
   readonly lastBonusTime: number;
 }
