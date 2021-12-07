@@ -4,7 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { TransactionHistoryModule } from './transaction-history/transaction-history.module';
+// import { TransactionHistoryModule } from './transaction-history/transaction-history.module';
 import { UsersModule } from './users/users.module';
 import { TradeModule } from './trade/trade.module';
 import { UserCurrenciesModule } from './user-currencies/user-currencies.module';
@@ -20,7 +20,7 @@ import { TransactionsModule } from './transactions/transactions.module';
     ),
     HttpModule,
     UsersModule,
-    TransactionHistoryModule,
+    // TransactionHistoryModule,
     GlobalCurrenciesModule,
     UserCurrenciesModule,
     TradeModule,

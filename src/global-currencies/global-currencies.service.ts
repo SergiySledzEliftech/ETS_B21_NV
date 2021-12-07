@@ -71,8 +71,8 @@ export class GlobalCurrenciesService {
     endDate: string
     ): Observable<AxiosResponse<any>> {
     const params = {
-      "start_date": startDate,
-      "end_date": endDate,
+      'start_date': startDate,
+      'end_date': endDate,
       source,
       base
     }
@@ -88,8 +88,8 @@ export class GlobalCurrenciesService {
     endDate: string
     ): Observable<AxiosResponse<any>> {
     const params = {
-      "start_date": startDate,
-      "end_date": endDate,
+      'start_date': startDate,
+      'end_date': endDate,
       source,
       base
     } 

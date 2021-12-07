@@ -60,10 +60,10 @@ export class GlobalCurrenciesController {
             let change_pctUSDbased = Math.round((changeUSDbased / startUSDbased) * 100) / 100
             
             let ratesObj: CurrencyChangesDto = {
-              "start_rate": startUSDbased,
-              "end_rate": endUSDbased,
-              "change": changeUSDbased,
-              "change_pct": change_pctUSDbased
+              'start_rate': startUSDbased,
+              'end_rate': endUSDbased,
+              'change': changeUSDbased,
+              'change_pct': change_pctUSDbased
             }
             return [currName, ratesObj]
           }).filter(([, { end_rate, start_rate, change }]) => !!end_rate && !!start_rate && !!change)
