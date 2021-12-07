@@ -2,11 +2,11 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber } from 'class-validator'
 
 export class UpdateUserBalanceDto {
-  @IsNumber()
-  @ApiProperty()
+  // @IsNumber()
+  // @ApiProperty()
   readonly dollarBalance: number;
 
-  @IsNumber()
-  @ApiProperty()
+  // @IsNumber()
+  // @ApiProperty()
   readonly lastBonusTime: number;
 }
