@@ -15,6 +15,7 @@ import { UserCurrenciesModule } from './user-currencies/user-currencies.module';
 import { GlobalCurrenciesModule } from './global-currencies/global-currencies.module';
 import { HttpModule } from '@nestjs/axios';
 import { TransactionsModule } from './transactions/transactions.module';
+import { UserCurrenciesController } from './user-currencies/user-currencies.controller';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { TransactionsModule } from './transactions/transactions.module';
   ],
   controllers: [
     AppController,
+    UserCurrenciesController,
     Auth]
 ,
   providers: [
