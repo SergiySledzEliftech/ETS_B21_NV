@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
-import { UsersModule } from './users/users.module';
+// import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 
 import { AppController } from './app.controller';
@@ -15,6 +15,7 @@ import { UserCurrenciesModule } from './user-currencies/user-currencies.module';
 import { GlobalCurrenciesModule } from './global-currencies/global-currencies.module';
 import { HttpModule } from '@nestjs/axios';
 import { TransactionsModule } from './transactions/transactions.module';
+import { UserCurrenciesController } from './user-currencies/user-currencies.controller';
 
 @Module({
   imports: [
@@ -25,14 +26,17 @@ import { TransactionsModule } from './transactions/transactions.module';
     HttpModule,
     UsersModule,
     AuthModule,
-  ],
-  controllers: [AppController, UserCurrenciesController, Auth,
     TransactionHistoryModule,
     GlobalCurrenciesModule,
     UserCurrenciesModule,
     TradeModule,
     TransactionsModule
   ],
+  controllers: [
+    AppController,
+    UserCurrenciesController,
+    Auth]
+,
   providers: [
     AppService
   ],
