@@ -18,7 +18,7 @@ import { User, UserSchema } from 'src/users/schemas/user.schema';
         signOptions: { expiresIn: '1d' },
       }),
     }),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
   providers: [AuthService, LocalStrategy, JwtStrategy],
   exports: [AuthService],

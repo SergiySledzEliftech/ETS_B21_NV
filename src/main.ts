@@ -20,10 +20,10 @@ async function bootstrap() {
     new ValidationPipe({
       transform: true,
       enableDebugMessages: true,
-      disableErrorMessages: 
+      disableErrorMessages:
         process.env.NODE_ENV === 'PRODUCTION' ? true : false,
-    })
-  )
+    }),
+  );
   await app.listen(process.env.PORT || 4000);
 }
 bootstrap();
