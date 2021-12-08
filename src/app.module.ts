@@ -8,6 +8,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Auth } from './auth/auth.controller';
 
+import { NewsModule } from './news/news.module'
+import { CurrencyModule } from './currency/currency.module';
+
 import { TransactionHistoryModule } from './transaction-history/transaction-history.module';
 import { UsersModule } from './users/users.module';
 import { TradeModule } from './trade/trade.module';
@@ -30,7 +33,10 @@ import { UserCurrenciesController } from './user-currencies/user-currencies.cont
     GlobalCurrenciesModule,
     UserCurrenciesModule,
     TradeModule,
-    TransactionsModule
+    TransactionsModule,
+    CurrencyModule,
+    NewsModule,
+
   ],
   controllers: [
     AppController,
