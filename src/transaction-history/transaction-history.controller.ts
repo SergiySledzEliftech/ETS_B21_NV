@@ -17,6 +17,7 @@ export class TransactionHistoryController {
     @Query() getTransactionHistoryDto: GetTransactionHistoryDto,
   ): Promise<ReturnTransactionHistoryDto> {
     const userId = user.user._id.toString();
+    console.log(userId);
     const { limit = '10', page = '1' } = getTransactionHistoryDto;
     const limitNum = +limit;
     const pageNum = +page;
