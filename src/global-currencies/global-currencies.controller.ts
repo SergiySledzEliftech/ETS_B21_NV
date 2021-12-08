@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { GlobalCurrenciesService } from './global-currencies.service';
 import { AxiosResponse } from 'axios';
 import { Observable, map } from 'rxjs';
@@ -7,6 +7,8 @@ import { ConvertCurrencyDto } from './dto/convert-currency.dto';
 import { CurrencyChangesDto } from './dto/currency-changes.dto';
 import { GetRateByDate } from './dto/get-rate-by-date.dto';
 import { query } from 'express';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { ApiSecurity } from '@nestjs/swagger';
 
 const BASE = 'USD';
 const SOURCE = 'crypto';
@@ -15,6 +17,7 @@ const SOURCE = 'crypto';
 export class GlobalCurrenciesController {
   constructor (private readonly globalCurrenciesService: GlobalCurrenciesService) {}
 
+  @ApiSecurity('bearerAuth')
   @Get('latest')
   getRates(): Observable<AxiosResponse<any>> {
     console.log('latest');
@@ -23,6 +26,7 @@ export class GlobalCurrenciesController {
       .pipe(map(res => res.data.rates));
   }
 
+  @ApiSecurity('bearerAuth')
   @Get('latest/one')
   getRate(@Query('currencyName') currencyName: string): Observable<AxiosResponse<any>> {
     console.log('getting rate one');
@@ -32,6 +36,7 @@ export class GlobalCurrenciesController {
       .pipe(map(res => res.data));
   }
 
+  @ApiSecurity('bearerAuth')
   @Get('history')
   getHistory(@Query() query: GetRateByDate): Observable<AxiosResponse<any>> {
     const { date, currency } = query;
@@ -40,6 +45,7 @@ export class GlobalCurrenciesController {
       .pipe(map(res => res.data.rates));
   }
 
+  @ApiSecurity('bearerAuth')
   @Get('convert')
   convert(@Query() query: ConvertCurrencyDto) {
     const { to, amount } = query;
@@ -49,6 +55,8 @@ export class GlobalCurrenciesController {
       .pipe(map(res => res.data));
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiSecurity('bearerAuth')
   @Get('changes')
   getChanges(@Query('start_date') startDate: string, @Query('end_date') endDate: string) {
     try {
@@ -78,6 +86,8 @@ export class GlobalCurrenciesController {
     }
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiSecurity('bearerAuth')
   @Get('period')
   getPeriodRates(@Query('start_date') startDate: string, @Query('end_date') endDate: string) {
     try {

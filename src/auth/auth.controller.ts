@@ -11,9 +11,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { LoginDto } from './dto/login.dto';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.quard';
+import { ApiSecurity } from '@nestjs/swagger';
 
 @Controller('auth')
 export class Auth {
@@ -22,8 +24,8 @@ export class Auth {
 
   
   @Post('login')
-  async login(@Request() req) {
-    return this.authService.login(req.body);
+  async login(@Body() body: LoginDto) {
+    return this.authService.login(body);
   }
 
   @Post('register')
@@ -33,6 +35,7 @@ export class Auth {
   }
 
   @UseGuards(JwtAuthGuard)
+  @ApiSecurity('bearerAuth')
   @Get('logout')
   @HttpCode(HttpStatus.GONE)
   async logout(@Request() { user }): Promise<any> {

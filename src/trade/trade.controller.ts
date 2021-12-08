@@ -9,6 +9,7 @@ import { TradeService } from './trade.service';
 
 import { BuyCurrencyDto } from './dto/buy-currency.dto';
 import { SellCurrencyDto } from './dto/sell-currency.dto';
+import { ApiSecurity } from '@nestjs/swagger';
 
 @Controller('trade')
 export class TradeController {
@@ -16,6 +17,7 @@ export class TradeController {
     private readonly tradeService: TradeService,
   ) {}
 
+  @ApiSecurity('bearerAuth')
   @Post('buy')
   buyCurrency(@Body() body: BuyCurrencyDto): Observable<any> {
     return this.tradeService.buyCurrency(body);

@@ -8,6 +8,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
+    .addSecurity('bearerAuth',{type: 'http', scheme: 'bearer', bearerFormat: 'JWT'})
     .setTitle('Trainder')
     .setDescription('Trainder API endpoints description')
     .setVersion('1.0')
