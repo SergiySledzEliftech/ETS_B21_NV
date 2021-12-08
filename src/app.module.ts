@@ -7,6 +7,8 @@ import { AppService } from './app.service';
 import { TransactionHistoryModule } from './transaction-history/transaction-history.module';
 import { UsersModule } from './users/users.module';
 import { TradeModule } from './trade/trade.module';
+import { NewsModule } from './news/news.module'
+import { CurrencyModule } from './currency/currency.module';
 import { UserCurrenciesModule } from './user-currencies/user-currencies.module';
 import { GlobalCurrenciesModule } from './global-currencies/global-currencies.module';
 import { HttpModule } from '@nestjs/axios';
@@ -24,7 +26,9 @@ import { TransactionsModule } from './transactions/transactions.module';
     GlobalCurrenciesModule,
     UserCurrenciesModule,
     TradeModule,
-    TransactionsModule
+    TransactionsModule,
+	NewsModule,
+	CurrencyModule
   ],
   controllers: [
     AppController
