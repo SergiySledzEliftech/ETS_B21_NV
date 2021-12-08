@@ -3,6 +3,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { TransactionHistoryService } from './transaction-history.service';
 import GetTransactionHistoryDto from './dto/get-transaction-history.dto';
 import ReturnTransactionHistoryDto from './dto/return-transaction-history.dto';
+import { ApiSecurity } from '@nestjs/swagger';
 
 @Controller('transaction-history')
 export class TransactionHistoryController {
@@ -10,6 +11,7 @@ export class TransactionHistoryController {
     private readonly transactionHistoryService: TransactionHistoryService,
   ) {}
 
+  @ApiSecurity('bearerAuth')
   @Get()
   @UseGuards(JwtAuthGuard)
   async getTransactionHistory(

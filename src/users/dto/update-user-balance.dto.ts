@@ -3,10 +3,10 @@ import { IsNumber } from 'class-validator'
 
 export class UpdateUserBalanceDto {
   // @IsNumber()
-  // @ApiProperty()
+  @ApiProperty()
   readonly dollarBalance: number;
 
   // @IsNumber()
-  // @ApiProperty()
+  @ApiProperty()
   readonly lastBonusTime: number;
 }
